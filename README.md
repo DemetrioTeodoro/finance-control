@@ -1,3 +1,28 @@
+# Finance Control
+
+Sistema pessoal de controle financeiro desenvolvido para gerenciar receitas, despesas, contas bancárias, cartões de crédito e acompanhar a evolução financeira através de dashboards e relatórios.
+
+## Tecnologias
+
+- Next.js 16
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Prisma
+- PostgreSQL Neon
+- Auth.js
+
+## Funcionalidades
+
+- Cadastro de usuários
+- Controle de receitas e despesas
+- Gerenciamento de contas
+- Controle de cartões de crédito
+- Categorização de gastos
+- Dashboard financeiro
+- Relatórios
+- Exportação de dados
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
