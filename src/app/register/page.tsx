@@ -30,7 +30,9 @@ export default function RegisterPage() {
 
         <Input name="password" type="password" placeholder="Senha" />
 
-        <Button className="w-full">Cadastrar</Button>
+        <Button type="submit" className="w-full">
+          Cadastrar
+        </Button>
 
         {message && <p className="text-sm text-muted-foreground">{message}</p>}
       </form>

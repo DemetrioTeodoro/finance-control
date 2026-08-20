@@ -8,10 +8,10 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
+  id       String  @id @default(cuid())
+  name     String?
+  email    String  @unique
+  password String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,6 +66,8 @@ model Category {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }
 
 model Transaction {
@@ -73,21 +75,20 @@ model Transaction {
 
   description String
   amount      Decimal
-
-  type String
-  date DateTime
+  type        String
+  date        DateTime
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   accountId String?
-  account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
   creditCardId String?
-  creditCard   CreditCard? @relation(fields: [creditCardId], references: [id])
+  creditCard   CreditCard? @relation(fields: [creditCardId], references: [id], onDelete: SetNull)
 
   categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

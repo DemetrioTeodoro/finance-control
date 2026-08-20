@@ -1,8 +1,27 @@
+import { auth } from "@/auth";
+import { getDashboardData } from "@/services/dashboard";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return (
+      <div className="p-6">
+        <p>Usuário não encontrado na sessão.</p>
+      </div>
+    );
+  }
+
+  const { balance, income, expenses } = await getDashboardData(session.user.id);
+
+  const currency = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +39,7 @@ export default function DashboardPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="text-2xl font-bold">R$ 0,00</div>
+            <div className="text-2xl font-bold">{currency.format(balance)}</div>
 
             <p className="text-xs text-muted-foreground">Saldo disponível</p>
           </CardContent>
@@ -34,7 +53,7 @@ export default function DashboardPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="text-2xl font-bold">R$ 0,00</div>
+            <div className="text-2xl font-bold">{currency.format(income)}</div>
 
             <p className="text-xs text-muted-foreground">Entradas deste mês</p>
           </CardContent>
@@ -48,7 +67,9 @@ export default function DashboardPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="text-2xl font-bold">R$ 0,00</div>
+            <div className="text-2xl font-bold">
+              {currency.format(expenses)}
+            </div>
 
             <p className="text-xs text-muted-foreground">Gastos deste mês</p>
           </CardContent>
