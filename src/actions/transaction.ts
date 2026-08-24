@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import {
   createTransaction as createTransactionService,
   updateTransaction as updateTransactionService,
+  deleteTransaction as deleteTransactionService,
 } from "@/services/transaction";
 
 export async function createTransaction(formData: FormData) {
@@ -204,6 +205,52 @@ export async function updateTransaction(formData: FormData) {
 
     return {
       error: "Não foi possível atualizar a transação.",
+    };
+  }
+}
+
+export async function deleteTransaction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      error: "Usuário não autenticado.",
+    };
+  }
+
+  const transactionId = formData.get("transactionId")?.toString().trim();
+
+  if (!transactionId) {
+    return {
+      error: "Transação não encontrada.",
+    };
+  }
+
+  try {
+    await deleteTransactionService(session.user.id, transactionId);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "TRANSACTION_NOT_FOUND") {
+        return {
+          error: "Transação não encontrada.",
+        };
+      }
+
+      if (error.message === "ACCOUNT_NOT_FOUND") {
+        return {
+          error: "Conta não encontrada.",
+        };
+      }
+    }
+
+    console.error("Erro ao excluir transação:", error);
+
+    return {
+      error: "Não foi possível excluir a transação.",
     };
   }
 }

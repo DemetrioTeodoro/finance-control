@@ -7,6 +7,13 @@ type CreateAccountInput = {
   balance: number;
 };
 
+type UpdateAccountInput = {
+  userId: string;
+  accountId: string;
+  name: string;
+  type: string;
+};
+
 export async function getAccounts(userId: string) {
   return prisma.account.findMany({
     where: {
@@ -38,7 +45,7 @@ export async function createAccount(input: CreateAccountInput) {
   const type = input.type.trim();
 
   if (!name || !type) {
-    throw new Error("Nome e tipo da conta são obrigatórios.");
+    throw new Error("INVALID_ACCOUNT");
   }
 
   return prisma.account.create({
@@ -47,6 +54,36 @@ export async function createAccount(input: CreateAccountInput) {
       type,
       balance: input.balance,
       userId: input.userId,
+    },
+  });
+}
+
+export async function updateAccount(input: UpdateAccountInput) {
+  const name = input.name.trim();
+  const type = input.type.trim();
+
+  if (!name || !type) {
+    throw new Error("INVALID_ACCOUNT");
+  }
+
+  const account = await prisma.account.findFirst({
+    where: {
+      id: input.accountId,
+      userId: input.userId,
+    },
+  });
+
+  if (!account) {
+    throw new Error("ACCOUNT_NOT_FOUND");
+  }
+
+  return prisma.account.update({
+    where: {
+      id: account.id,
+    },
+    data: {
+      name,
+      type,
     },
   });
 }

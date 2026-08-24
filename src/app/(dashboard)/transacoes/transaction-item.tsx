@@ -1,9 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
+import { deleteTransaction } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
 import { TransactionEditForm } from "./transaction-edit-form";
+import { DeleteTransactionDialog } from "./delete-transaction-dialog";
 
 type Account = {
   id: string;
@@ -45,12 +50,45 @@ export function TransactionItem({
   accounts,
   categories,
 }: TransactionItemProps) {
+  const router = useRouter();
+
   const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const currency = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
+
+  async function handleDelete() {
+    setDeleting(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.set("transactionId", transaction.id);
+
+      const result = await deleteTransaction(formData);
+
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      setDeleteDialogOpen(false);
+
+      toast.success("Transação excluída com sucesso.");
+
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao excluir transação:", error);
+
+      toast.error("Não foi possível excluir a transação.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <>
@@ -74,8 +112,23 @@ export function TransactionItem({
             {currency.format(transaction.amount)}
           </p>
 
-          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditing(true)}
+            disabled={deleting}
+          >
             Editar
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={deleting}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Excluir
           </Button>
         </div>
       </div>
@@ -88,6 +141,14 @@ export function TransactionItem({
           onClose={() => setEditing(false)}
         />
       )}
+
+      <DeleteTransactionDialog
+        open={deleteDialogOpen}
+        transactionDescription={transaction.description}
+        deleting={deleting}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

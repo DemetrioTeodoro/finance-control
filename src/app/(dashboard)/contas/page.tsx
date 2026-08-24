@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getAccounts } from "@/services/account";
 import { AccountForm } from "./account-form";
+import { AccountEditButton } from "./account-edit-button";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,16 @@ export default async function AccountsPage() {
               <p className="mt-4 text-2xl font-bold">
                 {currency.format(Number(account.balance))}
               </p>
+
+              <div className="mt-4">
+                <AccountEditButton
+                  account={{
+                    id: account.id,
+                    name: account.name,
+                    type: account.type,
+                  }}
+                />
+              </div>
             </div>
           ))}
         </div>
