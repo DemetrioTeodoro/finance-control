@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import {
   createAccount as createAccountService,
   updateAccount as updateAccountService,
+  deleteAccount as deleteAccountService,
 } from "@/services/account";
 
 export async function createAccount(formData: FormData) {
@@ -116,6 +117,62 @@ export async function updateAccount(formData: FormData) {
 
     return {
       error: "Não foi possível atualizar a conta.",
+    };
+  }
+}
+
+export async function deleteAccount(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      error: "Usuário não autenticado.",
+    };
+  }
+
+  const accountId = formData.get("accountId")?.toString().trim();
+  const modeValue = formData.get("mode")?.toString();
+
+  const mode =
+    modeValue === "unlink" || modeValue === "delete-transactions"
+      ? modeValue
+      : undefined;
+
+  if (!accountId) {
+    return {
+      error: "Conta não encontrada.",
+    };
+  }
+
+  try {
+    await deleteAccountService({
+      userId: session.user.id,
+      accountId,
+      mode,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "ACCOUNT_NOT_FOUND") {
+        return {
+          error: "Conta não encontrada.",
+        };
+      }
+
+      if (error.message === "ACCOUNT_HAS_TRANSACTIONS") {
+        return {
+          error: "Esta conta possui transações vinculadas.",
+        };
+      }
+    }
+
+    console.error("Erro ao excluir conta:", error);
+
+    return {
+      error: "Não foi possível excluir a conta.",
     };
   }
 }

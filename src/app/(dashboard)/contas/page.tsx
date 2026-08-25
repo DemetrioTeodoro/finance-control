@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { getAccounts } from "@/services/account";
 import { AccountForm } from "./account-form";
 import { AccountEditButton } from "./account-edit-button";
+import { AccountDeleteButton } from "./account-delete-button";
 
 export const dynamic = "force-dynamic";
 
@@ -51,13 +52,21 @@ export default async function AccountsPage() {
                 {currency.format(Number(account.balance))}
               </p>
 
-              <div className="mt-4">
+              <div className="mt-4 flex gap-2">
                 <AccountEditButton
                   account={{
                     id: account.id,
                     name: account.name,
                     type: account.type,
                   }}
+                />
+
+                <AccountDeleteButton
+                  account={{
+                    id: account.id,
+                    name: account.name,
+                  }}
+                  hasTransactions={account.transactionCount > 0}
                 />
               </div>
             </div>
