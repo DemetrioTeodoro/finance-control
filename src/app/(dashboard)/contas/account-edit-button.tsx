@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { AccountEditForm } from "./account-edit-form";
+import { AccountEditDialog } from "./account-edit-dialog";
 
 type AccountEditButtonProps = {
   account: {
@@ -22,9 +22,11 @@ export function AccountEditButton({ account }: AccountEditButtonProps) {
         Editar
       </Button>
 
-      {editing && (
-        <AccountEditForm account={account} onClose={() => setEditing(false)} />
-      )}
+      <AccountEditDialog
+        open={editing}
+        account={account}
+        onOpenChange={setEditing}
+      />
     </>
   );
 }
