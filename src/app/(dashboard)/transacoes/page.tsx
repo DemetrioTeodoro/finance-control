@@ -5,6 +5,7 @@ import {
   getTransactions,
 } from "@/services/transaction";
 import { getCreditCardOptions } from "@/services/credit-card";
+import { parseLocalDate } from "@/lib/date";
 import { TransactionForm } from "./transaction-form";
 import { TransactionItem } from "./transaction-item";
 import { TransactionFilters } from "./transaction-filters";
@@ -42,7 +43,9 @@ export default async function TransactionsPage({
     params.type === "income" || params.type === "expense"
       ? params.type
       : undefined;
-  const startDate = params.startDate ? new Date(params.startDate) : undefined;
+  const startDate = params.startDate
+    ? parseLocalDate(params.startDate)
+    : undefined;
   const endDate = params.endDate
     ? new Date(`${params.endDate}T23:59:59.999Z`)
     : undefined;

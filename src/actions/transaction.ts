@@ -6,6 +6,7 @@ import {
   updateTransaction as updateTransactionService,
   deleteTransaction as deleteTransactionService,
 } from "@/services/transaction";
+import { parseLocalDate } from "@/lib/date";
 
 export async function createTransaction(formData: FormData) {
   const session = await auth();
@@ -45,7 +46,7 @@ export async function createTransaction(formData: FormData) {
     };
   }
 
-  const transactionDate = new Date(date);
+  const transactionDate = parseLocalDate(date);
 
   if (Number.isNaN(transactionDate.getTime())) {
     return {
@@ -154,7 +155,7 @@ export async function updateTransaction(formData: FormData) {
     };
   }
 
-  const transactionDate = new Date(date);
+  const transactionDate = parseLocalDate(date);
 
   if (Number.isNaN(transactionDate.getTime())) {
     return {
