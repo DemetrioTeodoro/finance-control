@@ -21,7 +21,7 @@ type HoverInfo = {
 };
 
 const WIDTH = 600;
-const HEIGHT = 220;
+const HEIGHT = 200;
 const PADDING = { top: 8, right: 12, bottom: 28, left: 56 };
 const PLOT_WIDTH = WIDTH - PADDING.left - PADDING.right;
 const PLOT_HEIGHT = HEIGHT - PADDING.top - PADDING.bottom;
