@@ -92,19 +92,19 @@ export function TransactionItem({
 
   return (
     <>
-      <div className="flex items-center justify-between rounded-lg border bg-card p-4">
-        <div>
-          <p className="font-medium">{transaction.description}</p>
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="truncate font-medium">{transaction.description}</p>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="truncate text-sm text-muted-foreground">
             {transaction.account?.name ?? "Sem conta"} ·{" "}
             {new Intl.DateTimeFormat("pt-BR").format(transaction.date)}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
           <p
-            className={`font-semibold ${
+            className={`shrink-0 font-semibold whitespace-nowrap ${
               transaction.type === "income" ? "text-green-500" : "text-red-500"
             }`}
           >
@@ -112,24 +112,26 @@ export function TransactionItem({
             {currency.format(transaction.amount)}
           </p>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setEditing(true)}
-            disabled={deleting}
-          >
-            Editar
-          </Button>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditing(true)}
+              disabled={deleting}
+            >
+              Editar
+            </Button>
 
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setDeleteDialogOpen(true)}
-            disabled={deleting}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Excluir
-          </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(true)}
+              disabled={deleting}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir
+            </Button>
+          </div>
         </div>
       </div>
 
