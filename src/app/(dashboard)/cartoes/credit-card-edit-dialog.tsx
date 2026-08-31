@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { updateCategory } from "@/actions/category";
+import { updateCreditCard } from "@/actions/credit-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,21 +16,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CategoryEditDialogProps = {
+type CreditCardEditDialogProps = {
   open: boolean;
-  category: {
+  creditCard: {
     id: string;
     name: string;
-    color: string | null;
+    limit: number | null;
+    closingDay: number;
+    dueDay: number;
   };
   onOpenChange: (open: boolean) => void;
 };
 
-export function CategoryEditDialog({
+export function CreditCardEditDialog({
   open,
-  category,
+  creditCard,
   onOpenChange,
-}: CategoryEditDialogProps) {
+}: CreditCardEditDialogProps) {
   const router = useRouter();
 
   const [saving, setSaving] = useState(false);
@@ -39,21 +41,21 @@ export function CategoryEditDialog({
     setSaving(true);
 
     try {
-      const result = await updateCategory(formData);
+      const result = await updateCreditCard(formData);
 
       if (result.error) {
         toast.error(result.error);
         return;
       }
 
-      toast.success("Categoria atualizada com sucesso.");
+      toast.success("Cartão atualizado com sucesso.");
 
       onOpenChange(false);
       router.refresh();
     } catch (error) {
-      console.error("Erro ao atualizar categoria:", error);
+      console.error("Erro ao atualizar cartão:", error);
 
-      toast.error("Não foi possível atualizar a categoria.");
+      toast.error("Não foi possível atualizar o cartão.");
     } finally {
       setSaving(false);
     }
@@ -70,36 +72,58 @@ export function CategoryEditDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Editar categoria</DialogTitle>
+          <DialogTitle>Editar cartão</DialogTitle>
 
           <DialogDescription>
-            Altere as informações da categoria abaixo.
+            Altere as informações do cartão abaixo.
           </DialogDescription>
         </DialogHeader>
 
         <form
-          key={`${category.name}-${category.color}`}
+          key={`${creditCard.name}-${creditCard.limit}-${creditCard.closingDay}-${creditCard.dueDay}`}
           action={handleSubmit}
           className="space-y-4"
         >
-          <input type="hidden" name="categoryId" value={category.id} />
+          <input type="hidden" name="creditCardId" value={creditCard.id} />
 
           <Input
             name="name"
-            placeholder="Nome da categoria"
-            defaultValue={category.name}
+            placeholder="Nome do cartão"
+            defaultValue={creditCard.name}
             required
             disabled={saving}
           />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">Cor</label>
+          <Input
+            name="limit"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Limite (opcional)"
+            defaultValue={creditCard.limit ?? ""}
+            disabled={saving}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              name="closingDay"
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Dia de fechamento"
+              defaultValue={creditCard.closingDay}
+              required
+              disabled={saving}
+            />
 
             <Input
-              name="color"
-              type="color"
-              defaultValue={category.color ?? "#64748b"}
-              className="h-10 cursor-pointer p-1"
+              name="dueDay"
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Dia de vencimento"
+              defaultValue={creditCard.dueDay}
+              required
               disabled={saving}
             />
           </div>

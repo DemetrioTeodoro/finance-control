@@ -77,7 +77,11 @@ export function AccountEditDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={handleSubmit} className="space-y-4">
+        <form
+          key={`${account.name}-${account.type}`}
+          action={handleSubmit}
+          className="space-y-4"
+        >
           <input type="hidden" name="accountId" value={account.id} />
 
           <Input
