@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { getCategories } from "@/services/category";
 import { CategoryForm } from "./category-form";
+import { CategoryEditButton } from "./category-edit-button";
+import { CategoryDeleteButton } from "./category-delete-button";
 
 export const dynamic = "force-dynamic";
 
@@ -41,13 +43,33 @@ export default async function CategoriesPage() {
               className="flex items-center gap-3 rounded-lg border bg-card p-4"
             >
               <div
-                className="h-4 w-4 rounded-full"
+                className="h-4 w-4 shrink-0 rounded-full"
                 style={{
                   backgroundColor: category.color ?? "#64748b",
                 }}
               />
 
-              <span className="font-medium">{category.name}</span>
+              <span className="flex-1 truncate font-medium">
+                {category.name}
+              </span>
+
+              <div className="flex gap-2">
+                <CategoryEditButton
+                  category={{
+                    id: category.id,
+                    name: category.name,
+                    color: category.color,
+                  }}
+                />
+
+                <CategoryDeleteButton
+                  category={{
+                    id: category.id,
+                    name: category.name,
+                  }}
+                  hasTransactions={category.transactionCount > 0}
+                />
+              </div>
             </div>
           ))}
         </div>
