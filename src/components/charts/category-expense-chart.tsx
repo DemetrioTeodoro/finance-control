@@ -8,6 +8,7 @@ type CategoryExpenseChartProps = {
     color: string | null;
     amount: number;
   }[];
+  emptyMessage?: string;
 };
 
 const MAX_ROWS = 6;
@@ -18,11 +19,14 @@ const currency = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
-export function CategoryExpenseChart({ data }: CategoryExpenseChartProps) {
+export function CategoryExpenseChart({
+  data,
+  emptyMessage = "Nenhuma despesa registrada este mês.",
+}: CategoryExpenseChartProps) {
   if (data.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
-        Nenhuma despesa registrada este mês.
+        {emptyMessage}
       </p>
     );
   }

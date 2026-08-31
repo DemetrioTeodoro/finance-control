@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getExpensesByCategory as getExpensesByCategoryInRange } from "@/services/report";
 
 export async function getDashboardData(userId: string) {
   const now = new Date();
@@ -155,51 +156,10 @@ export async function getMonthlyEvolution(userId: string, months = 6) {
 
 export async function getExpensesByCategory(userId: string) {
   const now = new Date();
-
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      userId,
-      type: "expense",
-      date: {
-        gte: startOfMonth,
-        lt: startOfNextMonth,
-      },
-    },
-    select: {
-      amount: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-          color: true,
-        },
-      },
-    },
+  return getExpensesByCategoryInRange(userId, {
+    startDate: startOfMonth,
+    endDate: now,
   });
-
-  const totals = new Map<
-    string,
-    { name: string; color: string | null; amount: number }
-  >();
-
-  for (const transaction of transactions) {
-    const key = transaction.category?.id ?? "none";
-    const existing = totals.get(key);
-    const amount = Number(transaction.amount);
-
-    if (existing) {
-      existing.amount += amount;
-    } else {
-      totals.set(key, {
-        name: transaction.category?.name ?? "Sem categoria",
-        color: transaction.category?.color ?? null,
-        amount,
-      });
-    }
-  }
-
-  return Array.from(totals.values()).sort((a, b) => b.amount - a.amount);
 }
