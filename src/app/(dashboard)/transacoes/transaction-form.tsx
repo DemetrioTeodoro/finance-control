@@ -6,6 +6,7 @@ import { useState } from "react";
 import { createTransaction } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 
 type Account = {
   id: string;
@@ -78,7 +79,7 @@ export function TransactionForm({
             <option value="expense">Despesa</option>
           </select>
 
-          <Input name="date" type="date" required />
+          <DateInput name="date" required />
 
           <select
             name="accountId"

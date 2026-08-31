@@ -22,10 +22,30 @@ type UpdateTransactionInput = {
   categoryId?: string | null;
 };
 
-export async function getTransactions(userId: string) {
+type TransactionFilters = {
+  accountId?: string;
+  categoryId?: string;
+  type?: "income" | "expense";
+  startDate?: Date;
+  endDate?: Date;
+};
+
+export async function getTransactions(
+  userId: string,
+  filters?: TransactionFilters,
+) {
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
+      ...(filters?.accountId && { accountId: filters.accountId }),
+      ...(filters?.categoryId && { categoryId: filters.categoryId }),
+      ...(filters?.type && { type: filters.type }),
+      ...((filters?.startDate || filters?.endDate) && {
+        date: {
+          ...(filters?.startDate && { gte: filters.startDate }),
+          ...(filters?.endDate && { lte: filters.endDate }),
+        },
+      }),
     },
     include: {
       account: {
