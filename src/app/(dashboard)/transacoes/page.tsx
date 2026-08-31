@@ -4,6 +4,7 @@ import {
   getCategoryOptions,
   getTransactions,
 } from "@/services/transaction";
+import { getCreditCardOptions } from "@/services/credit-card";
 import { TransactionForm } from "./transaction-form";
 import { TransactionItem } from "./transaction-item";
 import { TransactionFilters } from "./transaction-filters";
@@ -14,6 +15,7 @@ type TransactionsPageProps = {
   searchParams: Promise<{
     accountId?: string;
     categoryId?: string;
+    creditCardId?: string;
     type?: string;
     startDate?: string;
     endDate?: string;
@@ -35,6 +37,7 @@ export default async function TransactionsPage({
 
   const accountId = params.accountId || undefined;
   const categoryId = params.categoryId || undefined;
+  const creditCardId = params.creditCardId || undefined;
   const type =
     params.type === "income" || params.type === "expense"
       ? params.type
@@ -45,19 +48,26 @@ export default async function TransactionsPage({
     : undefined;
 
   const hasActiveFilters = Boolean(
-    accountId || categoryId || type || params.startDate || params.endDate,
+    accountId ||
+      categoryId ||
+      creditCardId ||
+      type ||
+      params.startDate ||
+      params.endDate,
   );
 
-  const [transactions, accounts, categories] = await Promise.all([
+  const [transactions, accounts, categories, creditCards] = await Promise.all([
     getTransactions(userId, {
       accountId,
       categoryId,
+      creditCardId,
       type,
       startDate,
       endDate,
     }),
     getAccountOptions(userId),
     getCategoryOptions(userId),
+    getCreditCardOptions(userId),
   ]);
 
   return (
@@ -71,22 +81,29 @@ export default async function TransactionsPage({
           </p>
         </div>
 
-        <TransactionForm accounts={accounts} categories={categories} />
+        <TransactionForm
+          accounts={accounts}
+          categories={categories}
+          creditCards={creditCards}
+        />
       </div>
 
       <TransactionFilters
         key={[
           params.accountId,
           params.categoryId,
+          params.creditCardId,
           params.type,
           params.startDate,
           params.endDate,
         ].join("|")}
         accounts={accounts}
         categories={categories}
+        creditCards={creditCards}
         defaultValues={{
           accountId: params.accountId ?? "",
           categoryId: params.categoryId ?? "",
+          creditCardId: params.creditCardId ?? "",
           type: params.type ?? "",
           startDate: params.startDate ?? "",
           endDate: params.endDate ?? "",
@@ -110,6 +127,7 @@ export default async function TransactionsPage({
               transaction={transaction}
               accounts={accounts}
               categories={categories}
+              creditCards={creditCards}
             />
           ))}
         </div>

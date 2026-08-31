@@ -20,6 +20,11 @@ type Category = {
   name: string;
 };
 
+type CreditCard = {
+  id: string;
+  name: string;
+};
+
 type Transaction = {
   id: string;
   description: string;
@@ -28,6 +33,7 @@ type Transaction = {
   date: Date;
   accountId: string | null;
   categoryId: string | null;
+  creditCardId: string | null;
   account: {
     id: string;
     name: string;
@@ -37,18 +43,24 @@ type Transaction = {
     name: string;
     color: string | null;
   } | null;
+  creditCard: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 type TransactionItemProps = {
   transaction: Transaction;
   accounts: Account[];
   categories: Category[];
+  creditCards: CreditCard[];
 };
 
 export function TransactionItem({
   transaction,
   accounts,
   categories,
+  creditCards,
 }: TransactionItemProps) {
   const router = useRouter();
 
@@ -97,8 +109,10 @@ export function TransactionItem({
           <p className="truncate font-medium">{transaction.description}</p>
 
           <p className="truncate text-sm text-muted-foreground">
-            {transaction.account?.name ?? "Sem conta"} ·{" "}
-            {new Intl.DateTimeFormat("pt-BR").format(transaction.date)}
+            {transaction.creditCard?.name ??
+              transaction.account?.name ??
+              "Sem conta"}{" "}
+            · {new Intl.DateTimeFormat("pt-BR").format(transaction.date)}
           </p>
         </div>
 
@@ -140,6 +154,7 @@ export function TransactionItem({
           transaction={transaction}
           accounts={accounts}
           categories={categories}
+          creditCards={creditCards}
           onClose={() => setEditing(false)}
         />
       )}

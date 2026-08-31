@@ -9,6 +9,7 @@ type CreateTransactionInput = {
   date: Date;
   accountId?: string | null;
   categoryId?: string | null;
+  creditCardId?: string | null;
 };
 
 type UpdateTransactionInput = {
@@ -20,11 +21,13 @@ type UpdateTransactionInput = {
   date: Date;
   accountId?: string | null;
   categoryId?: string | null;
+  creditCardId?: string | null;
 };
 
 type TransactionFilters = {
   accountId?: string;
   categoryId?: string;
+  creditCardId?: string;
   type?: "income" | "expense";
   startDate?: Date;
   endDate?: Date;
@@ -39,6 +42,7 @@ export async function getTransactions(
       userId,
       ...(filters?.accountId && { accountId: filters.accountId }),
       ...(filters?.categoryId && { categoryId: filters.categoryId }),
+      ...(filters?.creditCardId && { creditCardId: filters.creditCardId }),
       ...(filters?.type && { type: filters.type }),
       ...((filters?.startDate || filters?.endDate) && {
         date: {
@@ -59,6 +63,12 @@ export async function getTransactions(
           id: true,
           name: true,
           color: true,
+        },
+      },
+      creditCard: {
+        select: {
+          id: true,
+          name: true,
         },
       },
     },
@@ -149,6 +159,22 @@ export async function createTransaction(input: CreateTransactionInput) {
       }
     }
 
+    if (input.creditCardId) {
+      const creditCard = await tx.creditCard.findFirst({
+        where: {
+          id: input.creditCardId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!creditCard) {
+        throw new Error("CREDIT_CARD_NOT_FOUND");
+      }
+    }
+
     if (account) {
       const newBalance =
         input.type === "income"
@@ -174,6 +200,7 @@ export async function createTransaction(input: CreateTransactionInput) {
         userId: input.userId,
         accountId: input.accountId ?? null,
         categoryId: input.categoryId ?? null,
+        creditCardId: input.creditCardId ?? null,
       },
     });
   });
@@ -274,6 +301,25 @@ export async function updateTransaction(input: UpdateTransactionInput) {
     }
 
     /*
+     * 3.5. Valida o novo cartão
+     */
+    if (input.creditCardId) {
+      const creditCard = await tx.creditCard.findFirst({
+        where: {
+          id: input.creditCardId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!creditCard) {
+        throw new Error("CREDIT_CARD_NOT_FOUND");
+      }
+    }
+
+    /*
      * 4. Aplica o impacto da nova transação
      */
     if (newAccount) {
@@ -306,6 +352,7 @@ export async function updateTransaction(input: UpdateTransactionInput) {
         date: input.date,
         accountId: input.accountId ?? null,
         categoryId: input.categoryId ?? null,
+        creditCardId: input.creditCardId ?? null,
       },
     });
   });

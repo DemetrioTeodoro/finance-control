@@ -18,14 +18,21 @@ type Category = {
   name: string;
 };
 
+type CreditCard = {
+  id: string;
+  name: string;
+};
+
 type TransactionFormProps = {
   accounts: Account[];
   categories: Category[];
+  creditCards: CreditCard[];
 };
 
 export function TransactionForm({
   accounts,
   categories,
+  creditCards,
 }: TransactionFormProps) {
   const router = useRouter();
 
@@ -103,6 +110,19 @@ export function TransactionForm({
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="creditCardId"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Sem cartão</option>
+
+            {creditCards.map((creditCard) => (
+              <option key={creditCard.id} value={creditCard.id}>
+                {creditCard.name}
               </option>
             ))}
           </select>

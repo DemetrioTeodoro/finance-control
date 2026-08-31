@@ -15,12 +15,19 @@ type Category = {
   name: string;
 };
 
+type CreditCard = {
+  id: string;
+  name: string;
+};
+
 type TransactionFiltersProps = {
   accounts: Account[];
   categories: Category[];
+  creditCards: CreditCard[];
   defaultValues: {
     accountId: string;
     categoryId: string;
+    creditCardId: string;
     type: string;
     startDate: string;
     endDate: string;
@@ -31,6 +38,7 @@ type TransactionFiltersProps = {
 export function TransactionFilters({
   accounts,
   categories,
+  creditCards,
   defaultValues,
   hasActiveFilters,
 }: TransactionFiltersProps) {
@@ -42,12 +50,14 @@ export function TransactionFilters({
 
     const accountId = formData.get("accountId")?.toString();
     const categoryId = formData.get("categoryId")?.toString();
+    const creditCardId = formData.get("creditCardId")?.toString();
     const type = formData.get("type")?.toString();
     const startDate = formData.get("startDate")?.toString();
     const endDate = formData.get("endDate")?.toString();
 
     if (accountId) params.set("accountId", accountId);
     if (categoryId) params.set("categoryId", categoryId);
+    if (creditCardId) params.set("creditCardId", creditCardId);
     if (type) params.set("type", type);
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
@@ -93,6 +103,24 @@ export function TransactionFilters({
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Cartão</label>
+
+        <select
+          name="creditCardId"
+          defaultValue={defaultValues.creditCardId}
+          className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="">Todos os cartões</option>
+
+          {creditCards.map((creditCard) => (
+            <option key={creditCard.id} value={creditCard.id}>
+              {creditCard.name}
             </option>
           ))}
         </select>

@@ -18,6 +18,11 @@ type Category = {
   name: string;
 };
 
+type CreditCard = {
+  id: string;
+  name: string;
+};
+
 type Transaction = {
   id: string;
   description: string;
@@ -26,12 +31,14 @@ type Transaction = {
   date: Date;
   accountId: string | null;
   categoryId: string | null;
+  creditCardId: string | null;
 };
 
 type TransactionEditFormProps = {
   transaction: Transaction;
   accounts: Account[];
   categories: Category[];
+  creditCards: CreditCard[];
   onClose: () => void;
 };
 
@@ -39,6 +46,7 @@ export function TransactionEditForm({
   transaction,
   accounts,
   categories,
+  creditCards,
   onClose,
 }: TransactionEditFormProps) {
   const router = useRouter();
@@ -122,6 +130,20 @@ export function TransactionEditForm({
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="creditCardId"
+            defaultValue={transaction.creditCardId ?? ""}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Sem cartão</option>
+
+            {creditCards.map((creditCard) => (
+              <option key={creditCard.id} value={creditCard.id}>
+                {creditCard.name}
               </option>
             ))}
           </select>

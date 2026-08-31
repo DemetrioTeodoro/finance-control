@@ -23,6 +23,7 @@ export async function createTransaction(formData: FormData) {
 
   const accountId = formData.get("accountId")?.toString() || null;
   const categoryId = formData.get("categoryId")?.toString() || null;
+  const creditCardId = formData.get("creditCardId")?.toString() || null;
 
   if (!description || !amount || !type || !date) {
     return {
@@ -61,6 +62,7 @@ export async function createTransaction(formData: FormData) {
       date: transactionDate,
       accountId,
       categoryId,
+      creditCardId,
     });
 
     return {
@@ -77,6 +79,12 @@ export async function createTransaction(formData: FormData) {
       if (error.message === "CATEGORY_NOT_FOUND") {
         return {
           error: "Categoria não encontrada.",
+        };
+      }
+
+      if (error.message === "CREDIT_CARD_NOT_FOUND") {
+        return {
+          error: "Cartão não encontrado.",
         };
       }
 
@@ -118,6 +126,7 @@ export async function updateTransaction(formData: FormData) {
 
   const accountId = formData.get("accountId")?.toString() || null;
   const categoryId = formData.get("categoryId")?.toString() || null;
+  const creditCardId = formData.get("creditCardId")?.toString() || null;
 
   if (!transactionId) {
     return {
@@ -163,6 +172,7 @@ export async function updateTransaction(formData: FormData) {
       date: transactionDate,
       accountId,
       categoryId,
+      creditCardId,
     });
 
     return {
@@ -185,6 +195,12 @@ export async function updateTransaction(formData: FormData) {
       if (error.message === "CATEGORY_NOT_FOUND") {
         return {
           error: "Categoria não encontrada.",
+        };
+      }
+
+      if (error.message === "CREDIT_CARD_NOT_FOUND") {
+        return {
+          error: "Cartão não encontrado.",
         };
       }
 
