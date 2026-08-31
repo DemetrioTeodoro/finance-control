@@ -70,94 +70,96 @@ export function TransactionFilters({
   return (
     <form
       action={handleSubmit}
-      className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4"
+      className="flex flex-col gap-3 rounded-lg border bg-card p-4"
     >
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Conta</label>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Conta</label>
 
-        <select
-          name="accountId"
-          defaultValue={defaultValues.accountId}
-          className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Todas as contas</option>
+          <select
+            name="accountId"
+            defaultValue={defaultValues.accountId}
+            className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Todas as contas</option>
 
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </select>
-      </div>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Categoria</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Categoria</label>
 
-        <select
-          name="categoryId"
-          defaultValue={defaultValues.categoryId}
-          className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Todas as categorias</option>
+          <select
+            name="categoryId"
+            defaultValue={defaultValues.categoryId}
+            className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Todas as categorias</option>
 
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Cartão</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Cartão</label>
 
-        <select
-          name="creditCardId"
-          defaultValue={defaultValues.creditCardId}
-          className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Todos os cartões</option>
+          <select
+            name="creditCardId"
+            defaultValue={defaultValues.creditCardId}
+            className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Todos os cartões</option>
 
-          {creditCards.map((creditCard) => (
-            <option key={creditCard.id} value={creditCard.id}>
-              {creditCard.name}
-            </option>
-          ))}
-        </select>
-      </div>
+            {creditCards.map((creditCard) => (
+              <option key={creditCard.id} value={creditCard.id}>
+                {creditCard.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Tipo</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Tipo</label>
 
-        <select
-          name="type"
-          defaultValue={defaultValues.type}
-          className="flex h-10 w-36 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Todos os tipos</option>
-          <option value="income">Receita</option>
-          <option value="expense">Despesa</option>
-        </select>
-      </div>
+          <select
+            name="type"
+            defaultValue={defaultValues.type}
+            className="flex h-10 w-36 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Todos os tipos</option>
+            <option value="income">Receita</option>
+            <option value="expense">Despesa</option>
+          </select>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">De</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">De</label>
 
-        <DateInput
-          name="startDate"
-          defaultValue={defaultValues.startDate}
-          className="w-40"
-        />
-      </div>
+          <DateInput
+            name="startDate"
+            defaultValue={defaultValues.startDate}
+            className="w-40"
+          />
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Até</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Até</label>
 
-        <DateInput
-          name="endDate"
-          defaultValue={defaultValues.endDate}
-          className="w-40"
-        />
+          <DateInput
+            name="endDate"
+            defaultValue={defaultValues.endDate}
+            className="w-40"
+          />
+        </div>
       </div>
 
       <div className="flex gap-2">

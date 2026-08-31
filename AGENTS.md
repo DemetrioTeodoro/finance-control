@@ -18,8 +18,8 @@ A aplicação permite que usuários autenticados gerenciem:
 - Categorias
 - Transações
 - Dashboard financeiro
-- Cartões de crédito (planejado)
-- Relatórios (planejado)
+- Cartões de crédito
+- Relatórios
 
 Cada recurso financeiro pertence a um usuário.
 
@@ -172,6 +172,8 @@ src/
 ├── actions/
 │   ├── auth.ts
 │   ├── account.ts
+│   ├── category.ts
+│   ├── credit-card.ts
 │   ├── transaction.ts
 │   └── ...
 │
@@ -184,7 +186,9 @@ src/
 │   │   ├── page.tsx
 │   │   ├── contas/
 │   │   ├── categorias/
+│   │   ├── cartoes/
 │   │   ├── transacoes/
+│   │   ├── relatorios/
 │   │   └── ...
 │   │
 │   ├── login/
@@ -193,18 +197,32 @@ src/
 │       └── auth/
 │
 ├── components/
+│   ├── charts/          # gráficos SVG reutilizáveis (dashboard e relatórios)
+│   ├── header.tsx
+│   ├── sidebar.tsx
+│   ├── sidebar-context.tsx
+│   ├── sidebar-toggle-button.tsx
+│   ├── value-visibility-context.tsx
+│   ├── value-visibility-toggle.tsx
+│   ├── sensitive-value.tsx
+│   ├── theme-provider.tsx
+│   ├── mode-toggle.tsx
+│   ├── logout-button.tsx
 │   └── ui/
 │
 ├── generated/
 │   └── prisma/
 │
 ├── lib/
-│   └── prisma.ts
+│   ├── prisma.ts
+│   └── date.ts
 │
 ├── services/
 │   ├── dashboard.ts
+│   ├── report.ts
 │   ├── account.ts
 │   ├── category.ts
+│   ├── credit-card.ts
 │   └── transaction.ts
 │
 └── auth.ts
@@ -646,7 +664,7 @@ prisma.$transaction(...)
 
 ## 21. Exclusão de contas
 
-A funcionalidade de exclusão de contas está em desenvolvimento.
+A exclusão de contas já está implementada e segue as regras abaixo.
 
 Existem dois cenários.
 
@@ -1057,26 +1075,36 @@ bg-primary text-primary-foreground
 
 ## 33. Funcionalidades implementadas
 
-Atualmente já existem:
+O backlog original deste documento (seções 34/35 anteriores) foi concluído. Atualmente já existem:
 
 - Cadastro
 - Login
 - Auth.js
 - Sessão JWT
 - Proteção do dashboard
-- Dashboard
+- Dashboard, com gráficos de evolução de saldo, receitas x despesas e gastos por categoria
 - Contas
 - Criação de contas
 - Edição de contas
+- Exclusão de contas (conta sem transações, ou com transações — deixar sem conta / excluir junto)
 - Categorias
 - Criação de categorias
+- Edição de categorias
+- Exclusão de categorias
+- Cartões de crédito (criação, edição, exclusão)
+- Fatura de cartão de crédito (valor do ciclo em aberto, navegação entre faturas anteriores, calculada a partir do dia de fechamento/vencimento)
 - Transações
 - Criação de transações
 - Edição de transações
 - Exclusão de transações
+- Vínculo de transações a cartões de crédito
+- Filtros de transações (conta, categoria, cartão, tipo, período)
 - Atualização de saldo
 - Transações sem conta
 - Transações sem categoria
+- Relatórios (totais de receita/despesa/saldo e detalhamento por categoria, conta e cartão, com filtro de período)
+- Botão de ocultar/exibir valores sensíveis (global, persistido via cookie)
+- Menu mobile responsivo (Sidebar em drawer)
 - Proteção por usuário
 - Sidebar
 - Dialogs
@@ -1087,24 +1115,14 @@ Atualmente já existem:
 
 ## 34. Funcionalidades em desenvolvimento
 
-Atualmente em desenvolvimento:
-
-- Exclusão de contas
-
-A exclusão de contas deve seguir as regras definidas nas seções específicas deste documento.
+Nenhuma funcionalidade em desenvolvimento no momento.
 
 ---
 
 ## 35. Funcionalidades planejadas
 
-Ainda não implementado:
+Ideias para próximas iterações, sem prioridade definida:
 
-- Edição de categorias
-- Exclusão de categorias
-- Cartões de crédito
-- Filtros
-- Relatórios
-- Gráficos
 - Melhorias adicionais de UX
 
 ---
@@ -1272,47 +1290,11 @@ Para exclusão de conta testar:
 
 ## 42. Ponto atual do desenvolvimento
 
-O próximo recurso é:
+O backlog original (contas, categorias, transações, filtros, cartões de crédito, fatura de cartão, gráficos e relatórios) está completo, e o bug de fuso horário na exibição de datas (que existia desde 30/08) foi corrigido. Não há um próximo recurso ou pendência conhecida no momento — ver seção 35 para ideias futuras.
 
-**Exclusão de contas**
+**Sobre o fuso horário**: datas informadas pelo usuário (`yyyy-mm-dd`, formato emitido pelo `DateInput`) devem sempre ser convertidas com `parseLocalDate` de `src/lib/date.ts`, nunca com `new Date(string)` puro — este último interpreta a string como meia-noite UTC, que em fusos negativos (o servidor roda em UTC-3) formata como o dia anterior ao ser exibida com `Intl.DateTimeFormat`. `parseLocalDate` é usado em `actions/transaction.ts` (criação/edição) e nos filtros de data de `transacoes/page.tsx` e `relatorios/page.tsx`. Ao adicionar um novo ponto de entrada de data vinda do usuário, reutilizar essa função.
 
-Antes de implementar, verificar:
-
-```text
-src/app/(dashboard)/contas/account-form.tsx
-src/app/(dashboard)/contas/account-edit-button.tsx
-src/app/(dashboard)/contas/account-edit-dialog.tsx
-src/services/account.ts
-src/actions/account.ts
-```
-
-A implementação esperada:
-
-```text
-services/account.ts
-        ↓
-deleteAccount()
-        ↓
-actions/account.ts
-        ↓
-deleteAccount()
-        ↓
-Interface
-        ↓
-Botão excluir
-        ↓
-Dialog
-        ↓
-Conta sem transações
-        OU
-Conta com transações
-        ├── deixar sem conta
-        └── excluir transações
-```
-
-Seguir o mesmo padrão utilizado na exclusão de transações.
-
-A operação deve ser segura para usuários diferentes e deve utilizar uma única transação Prisma quando houver alterações relacionadas.
+Antes de iniciar uma nova funcionalidade, seguir as seções 39 e 40 deste documento.
 
 ---
 

@@ -40,20 +40,22 @@ export default async function CategoriesPage() {
           {categories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center gap-3 rounded-lg border bg-card p-4"
+              className="rounded-lg border bg-card p-4"
             >
-              <div
-                className="h-4 w-4 shrink-0 rounded-full"
-                style={{
-                  backgroundColor: category.color ?? "#64748b",
-                }}
-              />
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-3 w-3 shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: category.color ?? "#64748b",
+                  }}
+                />
 
-              <span className="flex-1 truncate font-medium">
-                {category.name}
-              </span>
+                <span className="min-w-0 flex-1 truncate font-medium">
+                  {category.name}
+                </span>
+              </div>
 
-              <div className="flex gap-2">
+              <div className="mt-3 flex gap-2">
                 <CategoryEditButton
                   category={{
                     id: category.id,

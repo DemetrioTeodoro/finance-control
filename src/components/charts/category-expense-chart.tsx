@@ -25,7 +25,7 @@ export function CategoryExpenseChart({
 }: CategoryExpenseChartProps) {
   if (data.length === 0) {
     return (
-      <p className="py-10 text-center text-sm text-muted-foreground">
+      <p className="py-6 text-center text-sm text-muted-foreground">
         {emptyMessage}
       </p>
     );

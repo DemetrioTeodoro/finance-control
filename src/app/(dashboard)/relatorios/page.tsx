@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SensitiveValue } from "@/components/sensitive-value";
 import { CategoryExpenseChart } from "@/components/charts/category-expense-chart";
+import { parseLocalDate } from "@/lib/date";
 import { ReportFilters } from "./report-filters";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +41,7 @@ function resolveRange(period: Period, startDateParam?: string, endDateParam?: st
 
   if (period === "custom") {
     const startDate = startDateParam
-      ? new Date(startDateParam)
+      ? parseLocalDate(startDateParam)
       : new Date(now.getFullYear(), now.getMonth(), 1);
 
     const endDate = endDateParam
