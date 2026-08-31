@@ -6,9 +6,7 @@ export async function Header() {
   const session = await auth();
 
   return (
-    <header className="flex h-16 items-center justify-between border-b px-6">
-      <h1 className="text-xl font-semibold">Finance Control</h1>
-
+    <header className="flex h-16 items-center justify-end border-b px-6">
       <div className="flex items-center gap-4">
         <div className="text-right">
           <p className="text-sm font-medium">

@@ -9,6 +9,7 @@ import {
   Tags,
   BarChart3,
   Landmark,
+  CircleDollarSign,
 } from "lucide-react";
 
 const menu = [
@@ -48,10 +49,17 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r p-4">
-      <h1 className="mb-8 text-xl font-bold">Finance Control</h1>
+    <aside className="flex w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground">
+      <div className="mb-6 flex items-center gap-2.5 px-1 py-2">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+          <CircleDollarSign size={18} />
+        </div>
+        <span className="text-sm font-semibold tracking-tight">
+          Finance Control
+        </span>
+      </div>
 
-      <nav className="space-y-2">
+      <nav className="space-y-1">
         {menu.map((item) => {
           const Icon = item.icon;
 
@@ -64,13 +72,13 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               }`}
             >
-              <Icon size={20} />
+              <Icon size={18} />
               <span>{item.name}</span>
             </Link>
           );
