@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { getAccounts } from "@/services/account";
+import { SensitiveValue } from "@/components/sensitive-value";
 import { AccountForm } from "./account-form";
 import { AccountEditButton } from "./account-edit-button";
 import { AccountDeleteButton } from "./account-delete-button";
@@ -49,7 +50,9 @@ export default async function AccountsPage() {
               <p className="text-sm text-muted-foreground">{account.type}</p>
 
               <p className="mt-4 text-2xl font-bold">
-                {currency.format(Number(account.balance))}
+                <SensitiveValue>
+                  {currency.format(Number(account.balance))}
+                </SensitiveValue>
               </p>
 
               <div className="mt-4 flex gap-2">

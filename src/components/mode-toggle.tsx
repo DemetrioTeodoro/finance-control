@@ -9,7 +9,7 @@ export function ModeToggle() {
   const { setTheme } = useTheme();
 
   return (
-    <div className="flex gap-2">
+    <>
       <Button variant="outline" size="icon" onClick={() => setTheme("light")}>
         <Sun />
       </Button>
@@ -17,6 +17,6 @@ export function ModeToggle() {
       <Button variant="outline" size="icon" onClick={() => setTheme("dark")}>
         <Moon />
       </Button>
-    </div>
+    </>
   );
 }

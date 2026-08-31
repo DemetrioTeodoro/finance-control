@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { deleteTransaction } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
+import { SensitiveValue } from "@/components/sensitive-value";
 import { TransactionEditForm } from "./transaction-edit-form";
 import { DeleteTransactionDialog } from "./delete-transaction-dialog";
 
@@ -117,14 +118,14 @@ export function TransactionItem({
         </div>
 
         <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
-          <p
+          <SensitiveValue
             className={`shrink-0 font-semibold whitespace-nowrap ${
               transaction.type === "income" ? "text-green-500" : "text-red-500"
             }`}
           >
             {transaction.type === "income" ? "+" : "-"}
             {currency.format(transaction.amount)}
-          </p>
+          </SensitiveValue>
 
           <div className="flex shrink-0 items-center gap-2">
             <Button

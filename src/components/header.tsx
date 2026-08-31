@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { LogoutButton } from "./logout-button";
 import { ModeToggle } from "./mode-toggle";
 import { SidebarToggleButton } from "./sidebar-toggle-button";
+import { ValueVisibilityToggle } from "./value-visibility-toggle";
 
 export async function Header() {
   const session = await auth();
@@ -21,7 +22,11 @@ export async function Header() {
           </p>
         </div>
 
-        <ModeToggle />
+        <div className="flex items-center gap-2">
+          <ValueVisibilityToggle />
+
+          <ModeToggle />
+        </div>
 
         <LogoutButton />
       </div>

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { getCreditCards } from "@/services/credit-card";
+import { SensitiveValue } from "@/components/sensitive-value";
 import { CreditCardForm } from "./credit-card-form";
 import { CreditCardEditButton } from "./credit-card-edit-button";
 import { CreditCardDeleteButton } from "./credit-card-delete-button";
@@ -52,9 +53,13 @@ export default async function CreditCardsPage() {
               </p>
 
               <p className="mt-4 text-2xl font-bold">
-                {creditCard.limit !== null
-                  ? currency.format(Number(creditCard.limit))
-                  : "Sem limite definido"}
+                {creditCard.limit !== null ? (
+                  <SensitiveValue>
+                    {currency.format(Number(creditCard.limit))}
+                  </SensitiveValue>
+                ) : (
+                  "Sem limite definido"
+                )}
               </p>
 
               <div className="mt-4 flex gap-2">

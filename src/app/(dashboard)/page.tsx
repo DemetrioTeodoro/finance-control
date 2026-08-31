@@ -3,6 +3,7 @@ import { getDashboardData } from "@/services/dashboard";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SensitiveValue } from "@/components/sensitive-value";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -39,7 +40,9 @@ export default async function DashboardPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="text-2xl font-bold">{currency.format(balance)}</div>
+            <div className="text-2xl font-bold">
+              <SensitiveValue>{currency.format(balance)}</SensitiveValue>
+            </div>
 
             <p className="text-xs text-muted-foreground">Saldo disponível</p>
           </CardContent>
@@ -53,7 +56,9 @@ export default async function DashboardPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="text-2xl font-bold">{currency.format(income)}</div>
+            <div className="text-2xl font-bold">
+              <SensitiveValue>{currency.format(income)}</SensitiveValue>
+            </div>
 
             <p className="text-xs text-muted-foreground">Entradas deste mês</p>
           </CardContent>
@@ -68,7 +73,7 @@ export default async function DashboardPage() {
 
           <CardContent>
             <div className="text-2xl font-bold">
-              {currency.format(expenses)}
+              <SensitiveValue>{currency.format(expenses)}</SensitiveValue>
             </div>
 
             <p className="text-xs text-muted-foreground">Gastos deste mês</p>
