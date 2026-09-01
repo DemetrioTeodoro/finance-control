@@ -4,16 +4,16 @@ import {
   getExpensesByCategory,
   getExpensesByCreditCard,
   getReportSummary,
+  resolveReportPeriod,
+  resolveReportRange,
 } from "@/services/report";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SensitiveValue } from "@/components/sensitive-value";
 import { CategoryExpenseChart } from "@/components/charts/category-expense-chart";
-import { parseLocalDate } from "@/lib/date";
 import { ReportFilters } from "./report-filters";
+import { ReportExportButton } from "./report-export-button";
 
 export const dynamic = "force-dynamic";
-
-type Period = "this-month" | "3-months" | "6-months" | "custom";
 
 type RelatoriosPageProps = {
   searchParams: Promise<{
@@ -22,41 +22,6 @@ type RelatoriosPageProps = {
     endDate?: string;
   }>;
 };
-
-function resolvePeriod(value?: string): Period {
-  if (
-    value === "this-month" ||
-    value === "3-months" ||
-    value === "6-months" ||
-    value === "custom"
-  ) {
-    return value;
-  }
-
-  return "this-month";
-}
-
-function resolveRange(period: Period, startDateParam?: string, endDateParam?: string) {
-  const now = new Date();
-
-  if (period === "custom") {
-    const startDate = startDateParam
-      ? parseLocalDate(startDateParam)
-      : new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const endDate = endDateParam
-      ? new Date(`${endDateParam}T23:59:59.999Z`)
-      : now;
-
-    return { startDate, endDate };
-  }
-
-  const monthsBack = period === "6-months" ? 5 : period === "3-months" ? 2 : 0;
-
-  const startDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
-
-  return { startDate, endDate: now };
-}
 
 function toIsoDate(date: Date) {
   return date.toISOString().split("T")[0];
@@ -72,8 +37,8 @@ export default async function RelatoriosPage({
   }
 
   const params = await searchParams;
-  const period = resolvePeriod(params.period);
-  const range = resolveRange(period, params.startDate, params.endDate);
+  const period = resolveReportPeriod(params.period);
+  const range = resolveReportRange(period, params.startDate, params.endDate);
 
   const [summary, expensesByCategory, expensesByAccount, expensesByCreditCard] =
     await Promise.all([
@@ -90,12 +55,20 @@ export default async function RelatoriosPage({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold">Relatórios</h1>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Relatórios</h1>
 
-        <p className="text-muted-foreground">
-          Totais e detalhamento por período, categoria, conta e cartão
-        </p>
+          <p className="text-muted-foreground">
+            Totais e detalhamento por período, categoria, conta e cartão
+          </p>
+        </div>
+
+        <ReportExportButton
+          period={period}
+          startDate={params.startDate ?? toIsoDate(range.startDate)}
+          endDate={params.endDate ?? toIsoDate(range.endDate)}
+        />
       </div>
 
       <ReportFilters

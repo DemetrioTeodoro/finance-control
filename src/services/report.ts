@@ -1,9 +1,51 @@
 import { prisma } from "@/lib/prisma";
+import { parseLocalDate } from "@/lib/date";
 
 type ReportRange = {
   startDate: Date;
   endDate: Date;
 };
+
+export type ReportPeriod = "this-month" | "3-months" | "6-months" | "custom";
+
+export function resolveReportPeriod(value?: string): ReportPeriod {
+  if (
+    value === "this-month" ||
+    value === "3-months" ||
+    value === "6-months" ||
+    value === "custom"
+  ) {
+    return value;
+  }
+
+  return "this-month";
+}
+
+export function resolveReportRange(
+  period: ReportPeriod,
+  startDateParam?: string,
+  endDateParam?: string,
+): ReportRange {
+  const now = new Date();
+
+  if (period === "custom") {
+    const startDate = startDateParam
+      ? parseLocalDate(startDateParam)
+      : new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const endDate = endDateParam
+      ? new Date(`${endDateParam}T23:59:59.999Z`)
+      : now;
+
+    return { startDate, endDate };
+  }
+
+  const monthsBack = period === "6-months" ? 5 : period === "3-months" ? 2 : 0;
+
+  const startDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+
+  return { startDate, endDate: now };
+}
 
 export async function getReportSummary(userId: string, range: ReportRange) {
   const [income, expense] = await Promise.all([
