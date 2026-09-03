@@ -113,7 +113,10 @@ export function TransactionItem({
             {transaction.creditCard?.name ??
               transaction.account?.name ??
               "Sem conta"}{" "}
-            · {new Intl.DateTimeFormat("pt-BR").format(transaction.date)}
+            ·{" "}
+            {new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(
+              transaction.date,
+            )}
           </p>
         </div>
 
