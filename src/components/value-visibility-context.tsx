@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 
-const COOKIE_NAME = "values-visible";
+import { updateValueVisibility } from "@/actions/user-preferences";
 
 type ValueVisibilityContextValue = {
   visible: boolean;
@@ -22,12 +23,15 @@ export function ValueVisibilityProvider({
   const [visible, setVisible] = useState(initialVisible);
 
   function toggle() {
-    setVisible((prev) => {
-      const next = !prev;
+    const next = !visible;
 
-      document.cookie = `${COOKIE_NAME}=${next}; path=/; max-age=31536000; samesite=lax`;
+    setVisible(next);
 
-      return next;
+    updateValueVisibility(next).then((result) => {
+      if (result?.error) {
+        setVisible(!next);
+        toast.error(result.error);
+      }
     });
   }
 
