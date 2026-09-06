@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
-
 import { auth } from "@/auth";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { SidebarProvider } from "@/components/sidebar-context";
 import { ValueVisibilityProvider } from "@/components/value-visibility-context";
+import { getValueVisibility } from "@/services/user-preferences";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -14,12 +13,11 @@ export default async function DashboardLayout({
 }) {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const cookieStore = await cookies();
-  const initialVisible = cookieStore.get("values-visible")?.value !== "false";
+  const initialVisible = await getValueVisibility(session.user.id);
 
   return (
     <ValueVisibilityProvider initialVisible={initialVisible}>
