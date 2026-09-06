@@ -79,6 +79,7 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  hideSensitiveValues: 'hideSensitiveValues',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
