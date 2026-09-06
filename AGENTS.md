@@ -1103,7 +1103,7 @@ O backlog original deste documento (seções 34/35 anteriores) foi concluído. A
 - Transações sem conta
 - Transações sem categoria
 - Relatórios (totais de receita/despesa/saldo e detalhamento por categoria, conta e cartão, com filtro de período)
-- Botão de ocultar/exibir valores sensíveis (global, persistido via cookie)
+- Botão de ocultar/exibir valores sensíveis (global, persistido por usuário no banco — `User.hideSensitiveValues`, sobrevive a troca de dispositivo/navegador)
 - Menu mobile responsivo (Sidebar em drawer)
 - Proteção por usuário
 - Sidebar
@@ -1124,6 +1124,7 @@ Nenhuma funcionalidade em desenvolvimento no momento.
 Ideias para próximas iterações, sem prioridade definida:
 
 - Melhorias adicionais de UX
+- Melhorar o modo claro (light theme)
 
 ---
 
@@ -1290,9 +1291,15 @@ Para exclusão de conta testar:
 
 ## 42. Ponto atual do desenvolvimento
 
-O backlog original (contas, categorias, transações, filtros, cartões de crédito, fatura de cartão, gráficos e relatórios) está completo, e o bug de fuso horário na exibição de datas (que existia desde 30/08) foi corrigido. Não há um próximo recurso ou pendência conhecida no momento — ver seção 35 para ideias futuras.
+O backlog original (contas, categorias, transações, filtros, cartões de crédito, fatura de cartão, gráficos e relatórios) está completo. Não há um próximo recurso planejado no momento — ver seção 35 para ideias futuras.
 
-**Sobre o fuso horário**: datas informadas pelo usuário (`yyyy-mm-dd`, formato emitido pelo `DateInput`) devem sempre ser convertidas com `parseLocalDate` de `src/lib/date.ts`, nunca com `new Date(string)` puro — este último interpreta a string como meia-noite UTC, que em fusos negativos (o servidor roda em UTC-3) formata como o dia anterior ao ser exibida com `Intl.DateTimeFormat`. `parseLocalDate` é usado em `actions/transaction.ts` (criação/edição) e nos filtros de data de `transacoes/page.tsx` e `relatorios/page.tsx`. Ao adicionar um novo ponto de entrada de data vinda do usuário, reutilizar essa função.
+**Sobre o fuso horário**: datas informadas pelo usuário (`yyyy-mm-dd`, formato emitido pelo `DateInput`) devem sempre ser convertidas com `parseLocalDate` de `src/lib/date.ts`, nunca com `new Date(string)` puro — este último interpreta a string como meia-noite UTC, que em fusos negativos formata como o dia anterior ao ser exibida com `Intl.DateTimeFormat`. `parseLocalDate` é usado em `actions/transaction.ts` (criação/edição) e nos filtros de data de `transacoes/page.tsx` e `relatorios/page.tsx`. Ao adicionar um novo ponto de entrada de data vinda do usuário, reutilizar essa função.
+
+Em 03/09/2026 foi corrigida uma recorrência desse mesmo bug em `src/app/(dashboard)/transacoes/transaction-item.tsx`: por ser Client Component, a formatação da data da transação rodava no fuso do navegador do usuário em vez do fuso do servidor (onde a data foi criada via `parseLocalDate`), fazendo a data exibida na lista de transações aparecer um dia antes. Corrigido adicionando `timeZone: "UTC"` explicitamente no `Intl.DateTimeFormat` desse componente. Qualquer novo componente **client-side** que formate uma data de transação deve fazer o mesmo (`timeZone: "UTC"` explícito), já que a formatação sem fuso explícito depende do ambiente onde o código roda (servidor vs. navegador do usuário), e os dois podem estar em fusos diferentes.
+
+**Esclarecimento sobre ciclo de fatura (03/09/2026)**: usuário relatou estranheza ao ver transações de agosto (dias 6 e 7) divididas entre duas faturas diferentes de um cartão com fechamento no dia 6. Verificado com os dados reais: **não é bug** — é o comportamento correto de `resolveInvoiceCycleKey`/`getInvoiceCycleRange` (`src/services/credit-card.ts`). Com fechamento no dia 6, compras até o dia 6 (inclusive) entram na fatura que fecha naquele mesmo dia; compras a partir do dia 7 entram na fatura seguinte. Isso explica transações de dias consecutivos (6 e 7) do mesmo mês caírem em faturas diferentes.
+
+**Persistência da visibilidade de valores sensíveis (05/09/2026)**: a preferência de ocultar/exibir valores sensíveis deixou de ser guardada em cookie (`values-visible`, por navegador/dispositivo) e passou a ser um campo no banco: `User.hideSensitiveValues` (`Boolean @default(true)`, oculto por padrão). Fluxo: `src/services/user-preferences.ts` (`getValueVisibility`/`setValueVisibility`) → `src/actions/user-preferences.ts` (`updateValueVisibility`, valida sessão) → `ValueVisibilityProvider` (`src/components/value-visibility-context.tsx`) faz update otimista no client e reverte com toast de erro se a Server Action falhar. `src/app/(dashboard)/layout.tsx` lê o estado inicial do banco via `getValueVisibility(session.user.id)`. Motivo: cookie era por navegador — trocar de dispositivo, usar aba anônima ou limpar cookies resetava para "visível", com risco de expor valores financeiros. Com o campo no `User`, a preferência é a mesma em qualquer lugar em que o usuário logar.
 
 Antes de iniciar uma nova funcionalidade, seguir as seções 39 e 40 deste documento.
 
