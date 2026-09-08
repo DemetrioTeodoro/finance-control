@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { CreditCardForm } from "./credit-card-form";
 import { CreditCardEditButton } from "./credit-card-edit-button";
 import { CreditCardDeleteButton } from "./credit-card-delete-button";
+import { CreditCardInvoiceImportButton } from "./credit-card-invoice-import-button";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,16 @@ export default async function CreditCardsPage() {
           </p>
         </div>
 
-        <CreditCardForm />
+        <div className="flex items-center gap-2">
+          <CreditCardInvoiceImportButton
+            creditCardOptions={creditCards.map((creditCard) => ({
+              id: creditCard.id,
+              name: creditCard.name,
+            }))}
+          />
+
+          <CreditCardForm />
+        </div>
       </div>
 
       {creditCards.length === 0 ? (
