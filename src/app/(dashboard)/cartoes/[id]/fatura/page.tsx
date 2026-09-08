@@ -203,9 +203,21 @@ export default async function FaturaPage({
                       {transaction.description}
                     </p>
 
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.category?.name ?? "Sem categoria"} ·{" "}
-                      {longDate.format(transaction.date)}
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      {transaction.category && (
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor:
+                              transaction.category.color ?? "#64748b",
+                          }}
+                        />
+                      )}
+
+                      <span className="truncate">
+                        {transaction.category?.name ?? "Sem categoria"} ·{" "}
+                        {longDate.format(transaction.date)}
+                      </span>
                     </p>
                   </div>
 
