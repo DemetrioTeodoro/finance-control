@@ -24,6 +24,19 @@ type UpdateTransactionInput = {
   creditCardId?: string | null;
 };
 
+type BulkCreditCardTransactionItem = {
+  description: string;
+  amount: number;
+  type: "income" | "expense";
+  date: Date;
+};
+
+type BulkCreateCreditCardTransactionsInput = {
+  userId: string;
+  creditCardId: string;
+  items: BulkCreditCardTransactionItem[];
+};
+
 type TransactionFilters = {
   accountId?: string;
   categoryId?: string;
@@ -354,6 +367,63 @@ export async function updateTransaction(input: UpdateTransactionInput) {
         categoryId: input.categoryId ?? null,
         creditCardId: input.creditCardId ?? null,
       },
+    });
+  });
+}
+
+export async function bulkCreateCreditCardTransactions(
+  input: BulkCreateCreditCardTransactionsInput,
+) {
+  if (input.items.length === 0) {
+    throw new Error("EMPTY_TRANSACTION_LIST");
+  }
+
+  const data = input.items.map((item) => {
+    const description = item.description.trim();
+
+    if (!description) {
+      throw new Error("INVALID_DESCRIPTION");
+    }
+
+    if (!Number.isFinite(item.amount) || item.amount <= 0) {
+      throw new Error("INVALID_AMOUNT");
+    }
+
+    if (item.type !== "income" && item.type !== "expense") {
+      throw new Error("INVALID_TYPE");
+    }
+
+    if (Number.isNaN(item.date.getTime())) {
+      throw new Error("INVALID_DATE");
+    }
+
+    return {
+      description,
+      amount: new Prisma.Decimal(item.amount),
+      type: item.type,
+      date: item.date,
+      userId: input.userId,
+      creditCardId: input.creditCardId,
+    };
+  });
+
+  return prisma.$transaction(async (tx) => {
+    const creditCard = await tx.creditCard.findFirst({
+      where: {
+        id: input.creditCardId,
+        userId: input.userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!creditCard) {
+      throw new Error("CREDIT_CARD_NOT_FOUND");
+    }
+
+    return tx.transaction.createMany({
+      data,
     });
   });
 }
