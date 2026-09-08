@@ -1103,6 +1103,7 @@ O backlog original deste documento (seções 34/35 anteriores) foi concluído. A
 - Transações sem conta
 - Transações sem categoria
 - Relatórios (totais de receita/despesa/saldo e detalhamento por categoria, conta e cartão, com filtro de período)
+- Exibição da categoria (nome + indicador de cor) na listagem de transações e na listagem da fatura de cartão de crédito
 - Botão de ocultar/exibir valores sensíveis (global, persistido por usuário no banco — `User.hideSensitiveValues`, sobrevive a troca de dispositivo/navegador)
 - Menu mobile responsivo (Sidebar em drawer)
 - Proteção por usuário
