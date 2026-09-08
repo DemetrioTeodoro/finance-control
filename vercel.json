@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "."
+    },
+    "py_api": {
+      "root": "py-api/",
+      "entrypoint": "index:app",
+      "functions": {
+        "index.py": {
+          "maxDuration": 30
+        }
+      }
+    }
+  },
+  "rewrites": [
+    { "source": "/python-backend/(.*)", "destination": { "service": "py_api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}
