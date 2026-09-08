@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { auth } from "@/auth";
 import {
   getCreditCardInvoice,
+  getCreditCardOptions,
   shiftInvoiceCycle,
   type InvoiceCycleKey,
 } from "@/services/credit-card";
@@ -17,6 +18,7 @@ import {
 import { SensitiveValue } from "@/components/sensitive-value";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CreditCardInvoiceImportButton } from "../../credit-card-invoice-import-button";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +76,8 @@ export default async function FaturaPage({
   const query = await searchParams;
   const cycle = parseCycle(query.year, query.month);
 
+  const creditCardOptions = await getCreditCardOptions(session.user.id);
+
   let invoice;
 
   try {
@@ -99,22 +103,31 @@ export default async function FaturaPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href="/cartoes"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Cartões
-        </Link>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <Link
+            href="/cartoes"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Cartões
+          </Link>
 
-        <h1 className="mt-2 text-3xl font-bold">{invoice.creditCard.name}</h1>
+          <h1 className="mt-2 text-3xl font-bold">
+            {invoice.creditCard.name}
+          </h1>
 
-        <p className="text-muted-foreground">
-          Fatura de{" "}
-          {monthLabel.format(
-            new Date(invoice.cycle.year, invoice.cycle.month, 1),
-          )}
-        </p>
+          <p className="text-muted-foreground">
+            Fatura de{" "}
+            {monthLabel.format(
+              new Date(invoice.cycle.year, invoice.cycle.month, 1),
+            )}
+          </p>
+        </div>
+
+        <CreditCardInvoiceImportButton
+          creditCardOptions={creditCardOptions}
+          defaultCreditCardId={id}
+        />
       </div>
 
       <Card>
