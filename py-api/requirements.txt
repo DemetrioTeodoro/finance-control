@@ -1,0 +1,9 @@
+fastapi==0.115.0
+python-multipart==0.0.12
+ofxparse==0.21
+httpx==0.27.2
+
+# Apenas para rodar localmente com `uvicorn py-api.index:app --reload`.
+# Na Vercel o runtime Python invoca o objeto `app` (ASGI) diretamente,
+# sem necessidade de um servidor uvicorn próprio.
+uvicorn[standard]==0.30.6
