@@ -109,14 +109,26 @@ export function TransactionItem({
         <div className="min-w-0">
           <p className="truncate font-medium">{transaction.description}</p>
 
-          <p className="truncate text-sm text-muted-foreground">
-            {transaction.creditCard?.name ??
-              transaction.account?.name ??
-              "Sem conta"}{" "}
-            ·{" "}
-            {new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(
-              transaction.date,
+          <p className="flex items-center gap-1.5 truncate text-sm text-muted-foreground">
+            {transaction.category && (
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{
+                  backgroundColor: transaction.category.color ?? "#64748b",
+                }}
+              />
             )}
+
+            <span className="truncate">
+              {transaction.category?.name ?? "Sem categoria"} ·{" "}
+              {transaction.creditCard?.name ??
+                transaction.account?.name ??
+                "Sem conta"}{" "}
+              ·{" "}
+              {new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(
+                transaction.date,
+              )}
+            </span>
           </p>
         </div>
 
