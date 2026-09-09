@@ -43,6 +43,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Python (py-api)
+
+O projeto também tem um microsserviço Python (`py-api/`) responsável pela
+importação de fatura de cartão de crédito (OFX). Para rodá-lo localmente,
+ver instruções em [`py-api/README.md`](./py-api/README.md).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
