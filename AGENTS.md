@@ -1106,6 +1106,7 @@ O backlog original deste documento (seções 34/35 anteriores) foi concluído. A
 - Exibição da categoria (nome + indicador de cor) na listagem de transações e na listagem da fatura de cartão de crédito
 - Botão de ocultar/exibir valores sensíveis (global, persistido por usuário no banco — `User.hideSensitiveValues`, sobrevive a troca de dispositivo/navegador)
 - Menu mobile responsivo (Sidebar em drawer)
+- Tema claro revisado (paleta com acento azul e neutros tingidos, sem o contraste preto/branco puro do tema anterior)
 - Proteção por usuário
 - Sidebar
 - Dialogs
@@ -1125,7 +1126,6 @@ Nenhuma funcionalidade em desenvolvimento no momento.
 Ideias para próximas iterações, sem prioridade definida:
 
 - Melhorias adicionais de UX
-- Melhorar o modo claro (light theme)
 
 ---
 
@@ -1301,6 +1301,10 @@ Em 03/09/2026 foi corrigida uma recorrência desse mesmo bug em `src/app/(dashbo
 **Esclarecimento sobre ciclo de fatura (03/09/2026)**: usuário relatou estranheza ao ver transações de agosto (dias 6 e 7) divididas entre duas faturas diferentes de um cartão com fechamento no dia 6. Verificado com os dados reais: **não é bug** — é o comportamento correto de `resolveInvoiceCycleKey`/`getInvoiceCycleRange` (`src/services/credit-card.ts`). Com fechamento no dia 6, compras até o dia 6 (inclusive) entram na fatura que fecha naquele mesmo dia; compras a partir do dia 7 entram na fatura seguinte. Isso explica transações de dias consecutivos (6 e 7) do mesmo mês caírem em faturas diferentes.
 
 **Persistência da visibilidade de valores sensíveis (05/09/2026)**: a preferência de ocultar/exibir valores sensíveis deixou de ser guardada em cookie (`values-visible`, por navegador/dispositivo) e passou a ser um campo no banco: `User.hideSensitiveValues` (`Boolean @default(true)`, oculto por padrão). Fluxo: `src/services/user-preferences.ts` (`getValueVisibility`/`setValueVisibility`) → `src/actions/user-preferences.ts` (`updateValueVisibility`, valida sessão) → `ValueVisibilityProvider` (`src/components/value-visibility-context.tsx`) faz update otimista no client e reverte com toast de erro se a Server Action falhar. `src/app/(dashboard)/layout.tsx` lê o estado inicial do banco via `getValueVisibility(session.user.id)`. Motivo: cookie era por navegador — trocar de dispositivo, usar aba anônima ou limpar cookies resetava para "visível", com risco de expor valores financeiros. Com o campo no `User`, a preferência é a mesma em qualquer lugar em que o usuário logar.
+
+**Revisão do tema claro (08/09/2026)**: o tema claro (`src/app/globals.css`) tinha dois problemas. (1) Todas as cores de destaque (`--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring`) eram cinza puro (chroma 0), então botões, badges, links, o item ativo da sidebar e a linha do gráfico "Evolução do saldo" ficavam pretos/cinzas — sem nenhuma cor, diferente do tema escuro, que já usava um azul (`oklch(0.488 0.243 264.376)`) em `--sidebar-primary`. Corrigido aplicando esse mesmo azul também no claro nessas variáveis. (2) Os neutros (`--background`, `--foreground`, `--border`, `--muted`, `--secondary`, `--accent`) eram cinza puro e o texto era quase preto puro (`oklch(0.145 0 0)`), o que — combinado com o novo azul saturado — deixava a paleta "sem combinar". Corrigido tingindo levemente esses neutros na mesma família de matiz do azul (chroma baixo, ~0.004–0.02, hue 264.376) e suavizando o texto para um cinza-azulado escuro em vez de preto puro.
+
+Também havia um bug de contraste: sobrava em `globals.css` um bloco `@media (prefers-color-scheme: dark) { :root { --background: #0a0a0a; --foreground: #ededed; } }`, herdado do template original do `create-next-app` (anterior à adoção do `next-themes`). Esse bloco reagia à preferência de tema do **sistema operacional** direto no `:root`, sem checar a classe `.dark` que o `next-themes` controla (`src/components/theme-provider.tsx`, `attribute="class"`) — então, com o SO em modo escuro e o app explicitamente em "Claro" (sem a classe `.dark`), `--background`/`--foreground` viravam quase preto enquanto `--card` continuava branco puro, produzindo "cards brancos sobre fundo preto" mesmo no tema claro. Removido, já que `next-themes` com `enableSystem` já cobre o modo sistema via JS.
 
 Antes de iniciar uma nova funcionalidade, seguir as seções 39 e 40 deste documento.
 
