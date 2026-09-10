@@ -37,6 +37,19 @@ type BulkCreateCreditCardTransactionsInput = {
   items: BulkCreditCardTransactionItem[];
 };
 
+type BulkAccountTransactionItem = {
+  description: string;
+  amount: number;
+  type: "income" | "expense";
+  date: Date;
+};
+
+type BulkCreateAccountTransactionsInput = {
+  userId: string;
+  accountId: string;
+  items: BulkAccountTransactionItem[];
+};
+
 type TransactionFilters = {
   accountId?: string;
   categoryId?: string;
@@ -421,6 +434,73 @@ export async function bulkCreateCreditCardTransactions(
     if (!creditCard) {
       throw new Error("CREDIT_CARD_NOT_FOUND");
     }
+
+    return tx.transaction.createMany({
+      data,
+    });
+  });
+}
+
+export async function bulkCreateAccountTransactions(
+  input: BulkCreateAccountTransactionsInput,
+) {
+  if (input.items.length === 0) {
+    throw new Error("EMPTY_TRANSACTION_LIST");
+  }
+
+  let balanceDelta = new Prisma.Decimal(0);
+
+  const data = input.items.map((item) => {
+    const description = item.description.trim();
+
+    if (!description) {
+      throw new Error("INVALID_DESCRIPTION");
+    }
+
+    if (!Number.isFinite(item.amount) || item.amount <= 0) {
+      throw new Error("INVALID_AMOUNT");
+    }
+
+    if (item.type !== "income" && item.type !== "expense") {
+      throw new Error("INVALID_TYPE");
+    }
+
+    if (Number.isNaN(item.date.getTime())) {
+      throw new Error("INVALID_DATE");
+    }
+
+    const amount = new Prisma.Decimal(item.amount);
+    balanceDelta =
+      item.type === "income"
+        ? balanceDelta.add(amount)
+        : balanceDelta.sub(amount);
+
+    return {
+      description,
+      amount,
+      type: item.type,
+      date: item.date,
+      userId: input.userId,
+      accountId: input.accountId,
+    };
+  });
+
+  return prisma.$transaction(async (tx) => {
+    const account = await tx.account.findFirst({
+      where: {
+        id: input.accountId,
+        userId: input.userId,
+      },
+    });
+
+    if (!account) {
+      throw new Error("ACCOUNT_NOT_FOUND");
+    }
+
+    await tx.account.update({
+      where: { id: account.id },
+      data: { balance: account.balance.add(balanceDelta) },
+    });
 
     return tx.transaction.createMany({
       data,
