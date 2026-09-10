@@ -4,6 +4,7 @@ import { SensitiveValue } from "@/components/sensitive-value";
 import { AccountForm } from "./account-form";
 import { AccountEditButton } from "./account-edit-button";
 import { AccountDeleteButton } from "./account-delete-button";
+import { AccountStatementImportButton } from "./account-statement-import-button";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,16 @@ export default async function AccountsPage() {
           </p>
         </div>
 
-        <AccountForm />
+        <div className="flex gap-2">
+          <AccountStatementImportButton
+            accountOptions={accounts.map((account) => ({
+              id: account.id,
+              name: account.name,
+            }))}
+          />
+
+          <AccountForm />
+        </div>
       </div>
 
       {accounts.length === 0 ? (
