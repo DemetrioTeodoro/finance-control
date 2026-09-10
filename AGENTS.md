@@ -43,6 +43,7 @@ Cada recurso financeiro pertence a um usuário.
 - Credentials Provider
 - bcryptjs
 - next-themes
+- py-api: microsserviço Python (FastAPI) para importação de extratos/faturas via OFX — ver seção 4
 
 ---
 
@@ -163,6 +164,30 @@ Client Components **não devem**:
 - Implementar regras de autorização
 - Confiar em dados enviados pelo cliente para autorizar operações
 
+### `py-api/` (microsserviço Python)
+
+Serviço FastAPI separado, responsável **só** por interpretar arquivos OFX
+(fatura de cartão ou extrato de conta) e repassar as transações
+estruturadas para o Next.js persistir. Nunca acessa o Prisma/banco
+diretamente e nunca decide o `userId` — apenas encaminha o cookie/header
+de autenticação do browser para o Next.js validar a sessão (mesmo
+princípio da seção 8: nunca confiar em ID de recurso sem checar
+propriedade, o que quem faz é sempre o Next.js).
+
+Fluxo: `Browser → py-api (parse OFX) → Next.js /api/transactions/bulk
+(persiste) → py-api → Browser`.
+
+Organização interna (`py-api/index.py` só monta o `FastAPI()` e inclui os
+routers; a lógica fica em `py-api/app/`):
+
+- `app/config.py` — configuração de ambiente
+- `app/schemas.py` — modelos de resposta (Pydantic)
+- `app/ofx.py` — parsing do arquivo OFX
+- `app/nextjs_client.py` — encaminhamento das transações para o Next.js
+- `app/routes/` — endpoints HTTP
+
+Ver `py-api/README.md` para como rodar localmente.
+
 ---
 
 ## 5. Estrutura atual
@@ -226,6 +251,18 @@ src/
 │   └── transaction.ts
 │
 └── auth.ts
+
+py-api/
+├── index.py             # entrypoint (monta o FastAPI() e inclui os routers)
+├── app/
+│   ├── config.py
+│   ├── schemas.py
+│   ├── ofx.py
+│   ├── nextjs_client.py
+│   └── routes/
+│       ├── health.py
+│       └── importacao.py
+└── requirements.txt
 ```
 
 Ao adicionar funcionalidades, respeitar essa estrutura.
@@ -1107,6 +1144,8 @@ O backlog original deste documento (seções 34/35 anteriores) foi concluído. A
 - Botão de ocultar/exibir valores sensíveis (global, persistido por usuário no banco — `User.hideSensitiveValues`, sobrevive a troca de dispositivo/navegador)
 - Menu mobile responsivo (Sidebar em drawer)
 - Tema claro revisado (paleta com acento azul e neutros tingidos, sem o contraste preto/branco puro do tema anterior)
+- Import de fatura de cartão de crédito via arquivo OFX (microsserviço `py-api`, nunca altera saldo de conta)
+- Import de extrato bancário via arquivo OFX (microsserviço `py-api`, atualiza o saldo da conta vinculada)
 - Proteção por usuário
 - Sidebar
 - Dialogs
@@ -1305,6 +1344,10 @@ Em 03/09/2026 foi corrigida uma recorrência desse mesmo bug em `src/app/(dashbo
 **Revisão do tema claro (08/09/2026)**: o tema claro (`src/app/globals.css`) tinha dois problemas. (1) Todas as cores de destaque (`--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring`) eram cinza puro (chroma 0), então botões, badges, links, o item ativo da sidebar e a linha do gráfico "Evolução do saldo" ficavam pretos/cinzas — sem nenhuma cor, diferente do tema escuro, que já usava um azul (`oklch(0.488 0.243 264.376)`) em `--sidebar-primary`. Corrigido aplicando esse mesmo azul também no claro nessas variáveis. (2) Os neutros (`--background`, `--foreground`, `--border`, `--muted`, `--secondary`, `--accent`) eram cinza puro e o texto era quase preto puro (`oklch(0.145 0 0)`), o que — combinado com o novo azul saturado — deixava a paleta "sem combinar". Corrigido tingindo levemente esses neutros na mesma família de matiz do azul (chroma baixo, ~0.004–0.02, hue 264.376) e suavizando o texto para um cinza-azulado escuro em vez de preto puro.
 
 Também havia um bug de contraste: sobrava em `globals.css` um bloco `@media (prefers-color-scheme: dark) { :root { --background: #0a0a0a; --foreground: #ededed; } }`, herdado do template original do `create-next-app` (anterior à adoção do `next-themes`). Esse bloco reagia à preferência de tema do **sistema operacional** direto no `:root`, sem checar a classe `.dark` que o `next-themes` controla (`src/components/theme-provider.tsx`, `attribute="class"`) — então, com o SO em modo escuro e o app explicitamente em "Claro" (sem a classe `.dark`), `--background`/`--foreground` viravam quase preto enquanto `--card` continuava branco puro, produzindo "cards brancos sobre fundo preto" mesmo no tema claro. Removido, já que `next-themes` com `enableSystem` já cobre o modo sistema via JS.
+
+**Import de extrato bancário via OFX (08/09/2026)**: adicionado o mesmo fluxo de import já existente para fatura de cartão de crédito, agora também para conta bancária. Novo endpoint `POST /python-backend/processar-extrato` no `py-api` (mesmo parsing OFX do endpoint de fatura, `resource_field`/`resource_id` generalizados em `enviar_para_nextjs`), e a rota `src/app/api/transactions/bulk/route.ts` passou a aceitar `accountId` OU `creditCardId` (mutuamente exclusivos) no corpo, ramificando para `bulkCreateCreditCardTransactions` (inalterado) ou o novo `bulkCreateAccountTransactions` (`src/services/transaction.ts`). Diferença central em relação ao import de fatura: como transações de conta afetam saldo, `bulkCreateAccountTransactions` calcula o delta líquido do lote (soma de receitas menos despesas) e aplica **um único** `account.update` dentro do mesmo `prisma.$transaction` que faz o `createMany` das transações — evita N updates de saldo para um lote de N transações, e garante que uma falha no meio do lote não deixa saldo e transações inconsistentes entre si. UI: `AccountStatementImportButton`/`AccountStatementImportDialog` em `src/app/(dashboard)/contas/`, espelhando os componentes equivalentes de `cartoes/`.
+
+**Reorganização do `py-api` em módulos (09/09/2026)**: o serviço, que vivia inteiro em `py-api/index.py`, foi dividido por responsabilidade em `py-api/app/` (`config.py`, `schemas.py`, `ofx.py`, `nextjs_client.py`, `routes/`) — ver seção 4. `index.py` continua existindo na raiz como ponto de entrada fino (só monta o `FastAPI()` e inclui os routers), propositalmente, para não precisar alterar `vercel.json` (`entrypoint: "index:app"`), `next.config.ts` nem `py-api/README.md`, que já apontavam para `index:app`. Mudança puramente estrutural, sem alteração de comportamento, mensagens de erro ou contrato com o Next.js.
 
 Antes de iniciar uma nova funcionalidade, seguir as seções 39 e 40 deste documento.
 
