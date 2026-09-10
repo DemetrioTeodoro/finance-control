@@ -1,10 +1,20 @@
 # py-api
 
 Microsserviço Python (FastAPI) responsável por processar o OFX de uma
-**fatura de cartão de crédito** e repassar as transações estruturadas para o
-back-end Next.js, que é o único responsável por persistir dados no banco.
+**fatura de cartão de crédito** ou de um **extrato de conta bancária** e
+repassar as transações estruturadas para o back-end Next.js, que é o único
+responsável por persistir dados no banco.
 
-Ver `index.py` para o fluxo completo e as regras de negócio envolvidas.
+`index.py` é só o ponto de entrada (monta o `FastAPI()` e inclui os
+routers) — a lógica fica organizada em `app/`:
+
+- `app/config.py` — configuração de ambiente (URL do Next.js, headers
+  repassados, timeout do HTTP client).
+- `app/schemas.py` — modelos de resposta (Pydantic).
+- `app/ofx.py` — parsing do arquivo OFX.
+- `app/nextjs_client.py` — encaminhamento das transações para
+  `/api/transactions/bulk` do Next.js.
+- `app/routes/` — endpoints HTTP (`health.py`, `importacao.py`).
 
 ## Rodando localmente
 
@@ -42,6 +52,18 @@ O Next.js chama `/python-backend/processar-fatura` (redirecionado pelo
 rewrite de dev para o uvicorn local); o Python faz o parse do OFX e reenvia
 o resultado para `/api/transactions/bulk` do próprio Next.js, repassando o
 cookie de sessão do browser — o Python nunca decide o `userId`.
+
+## Testando a importação de extrato
+
+Mesmo cenário (Next.js na porta 3000 + py-api na porta 8000): usar o botão
+"Importar extrato" na tela de uma conta (`/contas`) e selecionar um arquivo
+`.ofx`.
+
+O fluxo é o mesmo da fatura, chamando `/python-backend/processar-extrato`
+em vez de `processar-fatura` e enviando `accountId` em vez de
+`creditCardId` para `/api/transactions/bulk`. A diferença de comportamento
+é que, por serem transações de conta, o saldo (`Account.balance`) é
+atualizado — diferente da importação de fatura, que nunca afeta saldo.
 
 ## Deploy
 
