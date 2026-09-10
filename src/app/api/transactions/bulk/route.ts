@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import { parseLocalDate } from "@/lib/date";
-import { bulkCreateCreditCardTransactions } from "@/services/transaction";
+import {
+  bulkCreateAccountTransactions,
+  bulkCreateCreditCardTransactions,
+} from "@/services/transaction";
 
 type BulkTransactionPayloadItem = {
   descricao?: unknown;
@@ -11,6 +14,7 @@ type BulkTransactionPayloadItem = {
 
 type BulkTransactionPayload = {
   creditCardId?: unknown;
+  accountId?: unknown;
   transacoes?: unknown;
 };
 
@@ -34,9 +38,21 @@ export async function POST(request: Request) {
 
   const creditCardId =
     typeof body.creditCardId === "string" ? body.creditCardId.trim() : "";
+  const accountId =
+    typeof body.accountId === "string" ? body.accountId.trim() : "";
 
-  if (!creditCardId) {
-    return Response.json({ error: "Cartão não informado." }, { status: 400 });
+  if (creditCardId && accountId) {
+    return Response.json(
+      { error: "Informe apenas um cartão ou uma conta, não os dois." },
+      { status: 400 },
+    );
+  }
+
+  if (!creditCardId && !accountId) {
+    return Response.json(
+      { error: "Cartão ou conta não informado." },
+      { status: 400 },
+    );
   }
 
   if (!Array.isArray(body.transacoes) || body.transacoes.length === 0) {
@@ -79,11 +95,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await bulkCreateCreditCardTransactions({
-      userId: session.user.id,
-      creditCardId,
-      items,
-    });
+    const result = accountId
+      ? await bulkCreateAccountTransactions({
+          userId: session.user.id,
+          accountId,
+          items,
+        })
+      : await bulkCreateCreditCardTransactions({
+          userId: session.user.id,
+          creditCardId,
+          items,
+        });
 
     return Response.json({ count: result.count });
   } catch (error) {
@@ -91,6 +113,13 @@ export async function POST(request: Request) {
       if (error.message === "CREDIT_CARD_NOT_FOUND") {
         return Response.json(
           { error: "Cartão não encontrado." },
+          { status: 404 },
+        );
+      }
+
+      if (error.message === "ACCOUNT_NOT_FOUND") {
+        return Response.json(
+          { error: "Conta não encontrada." },
           { status: 404 },
         );
       }
