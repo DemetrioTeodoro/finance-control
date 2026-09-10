@@ -44,4 +44,4 @@ next-env.d.ts
 
 # python
 py-api/.venv
-py-api/__pycache__
+py-api/**/__pycache__
