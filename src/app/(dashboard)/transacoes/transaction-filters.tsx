@@ -100,6 +100,7 @@ export function TransactionFilters({
             className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="">Todas as categorias</option>
+            <option value="none">Sem categoria</option>
 
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
