@@ -67,7 +67,9 @@ export async function getTransactions(
     where: {
       userId,
       ...(filters?.accountId && { accountId: filters.accountId }),
-      ...(filters?.categoryId && { categoryId: filters.categoryId }),
+      ...(filters?.categoryId && {
+        categoryId: filters.categoryId === "none" ? null : filters.categoryId,
+      }),
       ...(filters?.creditCardId && { creditCardId: filters.creditCardId }),
       ...(filters?.type && { type: filters.type }),
       ...((filters?.startDate || filters?.endDate) && {
