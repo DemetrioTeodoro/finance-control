@@ -25,6 +25,8 @@ export async function createTransaction(formData: FormData) {
   const accountId = formData.get("accountId")?.toString() || null;
   const categoryId = formData.get("categoryId")?.toString() || null;
   const creditCardId = formData.get("creditCardId")?.toString() || null;
+  const paidCreditCardId =
+    formData.get("paidCreditCardId")?.toString() || null;
 
   if (!description || !amount || !type || !date) {
     return {
@@ -64,6 +66,7 @@ export async function createTransaction(formData: FormData) {
       accountId,
       categoryId,
       creditCardId,
+      paidCreditCardId,
     });
 
     return {
@@ -86,6 +89,12 @@ export async function createTransaction(formData: FormData) {
       if (error.message === "CREDIT_CARD_NOT_FOUND") {
         return {
           error: "Cartão não encontrado.",
+        };
+      }
+
+      if (error.message === "INVALID_PAID_CREDIT_CARD_TYPE") {
+        return {
+          error: "O pagamento de fatura precisa ser uma despesa.",
         };
       }
 
@@ -128,6 +137,8 @@ export async function updateTransaction(formData: FormData) {
   const accountId = formData.get("accountId")?.toString() || null;
   const categoryId = formData.get("categoryId")?.toString() || null;
   const creditCardId = formData.get("creditCardId")?.toString() || null;
+  const paidCreditCardId =
+    formData.get("paidCreditCardId")?.toString() || null;
 
   if (!transactionId) {
     return {
@@ -174,6 +185,7 @@ export async function updateTransaction(formData: FormData) {
       accountId,
       categoryId,
       creditCardId,
+      paidCreditCardId,
     });
 
     return {
@@ -202,6 +214,12 @@ export async function updateTransaction(formData: FormData) {
       if (error.message === "CREDIT_CARD_NOT_FOUND") {
         return {
           error: "Cartão não encontrado.",
+        };
+      }
+
+      if (error.message === "INVALID_PAID_CREDIT_CARD_TYPE") {
+        return {
+          error: "O pagamento de fatura precisa ser uma despesa.",
         };
       }
 
