@@ -35,6 +35,7 @@ type Transaction = {
   accountId: string | null;
   categoryId: string | null;
   creditCardId: string | null;
+  paidCreditCardId: string | null;
   account: {
     id: string;
     name: string;
@@ -45,6 +46,10 @@ type Transaction = {
     color: string | null;
   } | null;
   creditCard: {
+    id: string;
+    name: string;
+  } | null;
+  paidCreditCard: {
     id: string;
     name: string;
   } | null;
@@ -107,7 +112,15 @@ export function TransactionItem({
     <>
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="truncate font-medium">{transaction.description}</p>
+          <p className="flex items-center gap-2 truncate font-medium">
+            {transaction.description}
+
+            {transaction.paidCreditCard && (
+              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">
+                Pagamento de fatura · {transaction.paidCreditCard.name}
+              </span>
+            )}
+          </p>
 
           <p className="flex items-center gap-1.5 truncate text-sm text-muted-foreground">
             {transaction.category && (
