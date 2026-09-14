@@ -10,6 +10,7 @@ type CreateTransactionInput = {
   accountId?: string | null;
   categoryId?: string | null;
   creditCardId?: string | null;
+  paidCreditCardId?: string | null;
 };
 
 type UpdateTransactionInput = {
@@ -22,6 +23,7 @@ type UpdateTransactionInput = {
   accountId?: string | null;
   categoryId?: string | null;
   creditCardId?: string | null;
+  paidCreditCardId?: string | null;
 };
 
 type BulkCreditCardTransactionItem = {
@@ -94,6 +96,12 @@ export async function getTransactions(
         },
       },
       creditCard: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      paidCreditCard: {
         select: {
           id: true,
           name: true,
@@ -203,6 +211,26 @@ export async function createTransaction(input: CreateTransactionInput) {
       }
     }
 
+    if (input.paidCreditCardId) {
+      if (input.type !== "expense") {
+        throw new Error("INVALID_PAID_CREDIT_CARD_TYPE");
+      }
+
+      const paidCreditCard = await tx.creditCard.findFirst({
+        where: {
+          id: input.paidCreditCardId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!paidCreditCard) {
+        throw new Error("CREDIT_CARD_NOT_FOUND");
+      }
+    }
+
     if (account) {
       const newBalance =
         input.type === "income"
@@ -229,6 +257,7 @@ export async function createTransaction(input: CreateTransactionInput) {
         accountId: input.accountId ?? null,
         categoryId: input.categoryId ?? null,
         creditCardId: input.creditCardId ?? null,
+        paidCreditCardId: input.paidCreditCardId ?? null,
       },
     });
   });
@@ -348,6 +377,29 @@ export async function updateTransaction(input: UpdateTransactionInput) {
     }
 
     /*
+     * 3.6. Valida o cartão cuja fatura está sendo paga
+     */
+    if (input.paidCreditCardId) {
+      if (input.type !== "expense") {
+        throw new Error("INVALID_PAID_CREDIT_CARD_TYPE");
+      }
+
+      const paidCreditCard = await tx.creditCard.findFirst({
+        where: {
+          id: input.paidCreditCardId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!paidCreditCard) {
+        throw new Error("CREDIT_CARD_NOT_FOUND");
+      }
+    }
+
+    /*
      * 4. Aplica o impacto da nova transação
      */
     if (newAccount) {
@@ -381,6 +433,7 @@ export async function updateTransaction(input: UpdateTransactionInput) {
         accountId: input.accountId ?? null,
         categoryId: input.categoryId ?? null,
         creditCardId: input.creditCardId ?? null,
+        paidCreditCardId: input.paidCreditCardId ?? null,
       },
     });
   });
