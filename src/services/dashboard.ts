@@ -36,6 +36,7 @@ export async function getDashboardData(userId: string) {
       where: {
         userId,
         type: "expense",
+        paidCreditCardId: null,
         date: {
           gte: startOfMonth,
           lt: startOfNextMonth,
@@ -91,6 +92,7 @@ export async function getMonthlyEvolution(userId: string, months = 6) {
         type: true,
         amount: true,
         accountId: true,
+        paidCreditCardId: true,
       },
     }),
   ]);
@@ -127,7 +129,9 @@ export async function getMonthlyEvolution(userId: string, months = 6) {
         bucket.accountNet += amount;
       }
     } else {
-      bucket.expense += amount;
+      if (!transaction.paidCreditCardId) {
+        bucket.expense += amount;
+      }
 
       if (transaction.accountId) {
         bucket.accountNet -= amount;
