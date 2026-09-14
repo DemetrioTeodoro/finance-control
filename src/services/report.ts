@@ -67,6 +67,7 @@ export async function getReportSummary(userId: string, range: ReportRange) {
       where: {
         userId,
         type: "expense",
+        paidCreditCardId: null,
         date: {
           gte: range.startDate,
           lte: range.endDate,
@@ -93,6 +94,7 @@ export async function getExpensesByCategory(userId: string, range: ReportRange) 
     where: {
       userId,
       type: "expense",
+      paidCreditCardId: null,
       date: {
         gte: range.startDate,
         lte: range.endDate,
@@ -139,6 +141,7 @@ export async function getExpensesByAccount(userId: string, range: ReportRange) {
     where: {
       userId,
       type: "expense",
+      paidCreditCardId: null,
       accountId: {
         not: null,
       },
