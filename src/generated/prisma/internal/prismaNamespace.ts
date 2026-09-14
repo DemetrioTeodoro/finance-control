@@ -892,6 +892,7 @@ export const TransactionScalarFieldEnum = {
   userId: 'userId',
   accountId: 'accountId',
   creditCardId: 'creditCardId',
+  paidCreditCardId: 'paidCreditCardId',
   categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

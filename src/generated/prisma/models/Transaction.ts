@@ -43,6 +43,7 @@ export type TransactionMinAggregateOutputType = {
   userId: string | null
   accountId: string | null
   creditCardId: string | null
+  paidCreditCardId: string | null
   categoryId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +58,7 @@ export type TransactionMaxAggregateOutputType = {
   userId: string | null
   accountId: string | null
   creditCardId: string | null
+  paidCreditCardId: string | null
   categoryId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,6 +73,7 @@ export type TransactionCountAggregateOutputType = {
   userId: number
   accountId: number
   creditCardId: number
+  paidCreditCardId: number
   categoryId: number
   createdAt: number
   updatedAt: number
@@ -95,6 +98,7 @@ export type TransactionMinAggregateInputType = {
   userId?: true
   accountId?: true
   creditCardId?: true
+  paidCreditCardId?: true
   categoryId?: true
   createdAt?: true
   updatedAt?: true
@@ -109,6 +113,7 @@ export type TransactionMaxAggregateInputType = {
   userId?: true
   accountId?: true
   creditCardId?: true
+  paidCreditCardId?: true
   categoryId?: true
   createdAt?: true
   updatedAt?: true
@@ -123,6 +128,7 @@ export type TransactionCountAggregateInputType = {
   userId?: true
   accountId?: true
   creditCardId?: true
+  paidCreditCardId?: true
   categoryId?: true
   createdAt?: true
   updatedAt?: true
@@ -224,6 +230,7 @@ export type TransactionGroupByOutputType = {
   userId: string
   accountId: string | null
   creditCardId: string | null
+  paidCreditCardId: string | null
   categoryId: string | null
   createdAt: Date
   updatedAt: Date
@@ -261,12 +268,14 @@ export type TransactionWhereInput = {
   userId?: Prisma.StringFilter<"Transaction"> | string
   accountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   creditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   account?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
   creditCard?: Prisma.XOR<Prisma.CreditCardNullableScalarRelationFilter, Prisma.CreditCardWhereInput> | null
+  paidCreditCard?: Prisma.XOR<Prisma.CreditCardNullableScalarRelationFilter, Prisma.CreditCardWhereInput> | null
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
 }
 
@@ -279,12 +288,14 @@ export type TransactionOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   creditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidCreditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   account?: Prisma.AccountOrderByWithRelationInput
   creditCard?: Prisma.CreditCardOrderByWithRelationInput
+  paidCreditCard?: Prisma.CreditCardOrderByWithRelationInput
   category?: Prisma.CategoryOrderByWithRelationInput
 }
 
@@ -300,12 +311,14 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Transaction"> | string
   accountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   creditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   account?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
   creditCard?: Prisma.XOR<Prisma.CreditCardNullableScalarRelationFilter, Prisma.CreditCardWhereInput> | null
+  paidCreditCard?: Prisma.XOR<Prisma.CreditCardNullableScalarRelationFilter, Prisma.CreditCardWhereInput> | null
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
 }, "id">
 
@@ -318,6 +331,7 @@ export type TransactionOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   creditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidCreditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -340,6 +354,7 @@ export type TransactionScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
   accountId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   creditCardId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  paidCreditCardId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
@@ -356,6 +371,7 @@ export type TransactionCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
   account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   creditCard?: Prisma.CreditCardCreateNestedOneWithoutTransactionsInput
+  paidCreditCard?: Prisma.CreditCardCreateNestedOneWithoutInvoicePaymentsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
 }
 
@@ -368,6 +384,7 @@ export type TransactionUncheckedCreateInput = {
   userId: string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -384,6 +401,7 @@ export type TransactionUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
   account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
   creditCard?: Prisma.CreditCardUpdateOneWithoutTransactionsNestedInput
+  paidCreditCard?: Prisma.CreditCardUpdateOneWithoutInvoicePaymentsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
 }
 
@@ -396,6 +414,7 @@ export type TransactionUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -410,6 +429,7 @@ export type TransactionCreateManyInput = {
   userId: string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -434,6 +454,7 @@ export type TransactionUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -458,6 +479,7 @@ export type TransactionCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   creditCardId?: Prisma.SortOrder
+  paidCreditCardId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -476,6 +498,7 @@ export type TransactionMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   creditCardId?: Prisma.SortOrder
+  paidCreditCardId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -490,6 +513,7 @@ export type TransactionMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   creditCardId?: Prisma.SortOrder
+  paidCreditCardId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -590,10 +614,24 @@ export type TransactionCreateNestedManyWithoutCreditCardInput = {
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
 }
 
+export type TransactionCreateNestedManyWithoutPaidCreditCardInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput> | Prisma.TransactionCreateWithoutPaidCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput | Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput[]
+  createMany?: Prisma.TransactionCreateManyPaidCreditCardInputEnvelope
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+}
+
 export type TransactionUncheckedCreateNestedManyWithoutCreditCardInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutCreditCardInput, Prisma.TransactionUncheckedCreateWithoutCreditCardInput> | Prisma.TransactionCreateWithoutCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutCreditCardInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCreditCardInput | Prisma.TransactionCreateOrConnectWithoutCreditCardInput[]
   createMany?: Prisma.TransactionCreateManyCreditCardInputEnvelope
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+}
+
+export type TransactionUncheckedCreateNestedManyWithoutPaidCreditCardInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput> | Prisma.TransactionCreateWithoutPaidCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput | Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput[]
+  createMany?: Prisma.TransactionCreateManyPaidCreditCardInputEnvelope
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
 }
 
@@ -611,6 +649,20 @@ export type TransactionUpdateManyWithoutCreditCardNestedInput = {
   deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
+export type TransactionUpdateManyWithoutPaidCreditCardNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput> | Prisma.TransactionCreateWithoutPaidCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput | Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput[]
+  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutPaidCreditCardInput | Prisma.TransactionUpsertWithWhereUniqueWithoutPaidCreditCardInput[]
+  createMany?: Prisma.TransactionCreateManyPaidCreditCardInputEnvelope
+  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutPaidCreditCardInput | Prisma.TransactionUpdateWithWhereUniqueWithoutPaidCreditCardInput[]
+  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutPaidCreditCardInput | Prisma.TransactionUpdateManyWithWhereWithoutPaidCreditCardInput[]
+  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+}
+
 export type TransactionUncheckedUpdateManyWithoutCreditCardNestedInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutCreditCardInput, Prisma.TransactionUncheckedCreateWithoutCreditCardInput> | Prisma.TransactionCreateWithoutCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutCreditCardInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCreditCardInput | Prisma.TransactionCreateOrConnectWithoutCreditCardInput[]
@@ -622,6 +674,20 @@ export type TransactionUncheckedUpdateManyWithoutCreditCardNestedInput = {
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
   update?: Prisma.TransactionUpdateWithWhereUniqueWithoutCreditCardInput | Prisma.TransactionUpdateWithWhereUniqueWithoutCreditCardInput[]
   updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutCreditCardInput | Prisma.TransactionUpdateManyWithWhereWithoutCreditCardInput[]
+  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+}
+
+export type TransactionUncheckedUpdateManyWithoutPaidCreditCardNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput> | Prisma.TransactionCreateWithoutPaidCreditCardInput[] | Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput | Prisma.TransactionCreateOrConnectWithoutPaidCreditCardInput[]
+  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutPaidCreditCardInput | Prisma.TransactionUpsertWithWhereUniqueWithoutPaidCreditCardInput[]
+  createMany?: Prisma.TransactionCreateManyPaidCreditCardInputEnvelope
+  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutPaidCreditCardInput | Prisma.TransactionUpdateWithWhereUniqueWithoutPaidCreditCardInput[]
+  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutPaidCreditCardInput | Prisma.TransactionUpdateManyWithWhereWithoutPaidCreditCardInput[]
   deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
@@ -677,6 +743,7 @@ export type TransactionCreateWithoutUserInput = {
   updatedAt?: Date | string
   account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   creditCard?: Prisma.CreditCardCreateNestedOneWithoutTransactionsInput
+  paidCreditCard?: Prisma.CreditCardCreateNestedOneWithoutInvoicePaymentsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
 }
 
@@ -688,6 +755,7 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   date: Date | string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -731,6 +799,7 @@ export type TransactionScalarWhereInput = {
   userId?: Prisma.StringFilter<"Transaction"> | string
   accountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   creditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -746,6 +815,7 @@ export type TransactionCreateWithoutAccountInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
   creditCard?: Prisma.CreditCardCreateNestedOneWithoutTransactionsInput
+  paidCreditCard?: Prisma.CreditCardCreateNestedOneWithoutInvoicePaymentsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
 }
 
@@ -757,6 +827,7 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   date: Date | string
   userId: string
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -798,6 +869,7 @@ export type TransactionCreateWithoutCreditCardInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
   account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
+  paidCreditCard?: Prisma.CreditCardCreateNestedOneWithoutInvoicePaymentsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
 }
 
@@ -809,6 +881,7 @@ export type TransactionUncheckedCreateWithoutCreditCardInput = {
   date: Date | string
   userId: string
   accountId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -821,6 +894,44 @@ export type TransactionCreateOrConnectWithoutCreditCardInput = {
 
 export type TransactionCreateManyCreditCardInputEnvelope = {
   data: Prisma.TransactionCreateManyCreditCardInput | Prisma.TransactionCreateManyCreditCardInput[]
+  skipDuplicates?: boolean
+}
+
+export type TransactionCreateWithoutPaidCreditCardInput = {
+  id?: string
+  description: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type: string
+  date: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutTransactionsInput
+  account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
+  creditCard?: Prisma.CreditCardCreateNestedOneWithoutTransactionsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+}
+
+export type TransactionUncheckedCreateWithoutPaidCreditCardInput = {
+  id?: string
+  description: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type: string
+  date: Date | string
+  userId: string
+  accountId?: string | null
+  creditCardId?: string | null
+  categoryId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TransactionCreateOrConnectWithoutPaidCreditCardInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput>
+}
+
+export type TransactionCreateManyPaidCreditCardInputEnvelope = {
+  data: Prisma.TransactionCreateManyPaidCreditCardInput | Prisma.TransactionCreateManyPaidCreditCardInput[]
   skipDuplicates?: boolean
 }
 
@@ -840,6 +951,22 @@ export type TransactionUpdateManyWithWhereWithoutCreditCardInput = {
   data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutCreditCardInput>
 }
 
+export type TransactionUpsertWithWhereUniqueWithoutPaidCreditCardInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedUpdateWithoutPaidCreditCardInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedCreateWithoutPaidCreditCardInput>
+}
+
+export type TransactionUpdateWithWhereUniqueWithoutPaidCreditCardInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutPaidCreditCardInput, Prisma.TransactionUncheckedUpdateWithoutPaidCreditCardInput>
+}
+
+export type TransactionUpdateManyWithWhereWithoutPaidCreditCardInput = {
+  where: Prisma.TransactionScalarWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutPaidCreditCardInput>
+}
+
 export type TransactionCreateWithoutCategoryInput = {
   id?: string
   description: string
@@ -851,6 +978,7 @@ export type TransactionCreateWithoutCategoryInput = {
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
   account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   creditCard?: Prisma.CreditCardCreateNestedOneWithoutTransactionsInput
+  paidCreditCard?: Prisma.CreditCardCreateNestedOneWithoutInvoicePaymentsInput
 }
 
 export type TransactionUncheckedCreateWithoutCategoryInput = {
@@ -862,6 +990,7 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   userId: string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -900,6 +1029,7 @@ export type TransactionCreateManyUserInput = {
   date: Date | string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -915,6 +1045,7 @@ export type TransactionUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
   creditCard?: Prisma.CreditCardUpdateOneWithoutTransactionsNestedInput
+  paidCreditCard?: Prisma.CreditCardUpdateOneWithoutInvoicePaymentsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
 }
 
@@ -926,6 +1057,7 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -939,6 +1071,7 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -952,6 +1085,7 @@ export type TransactionCreateManyAccountInput = {
   date: Date | string
   userId: string
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -967,6 +1101,7 @@ export type TransactionUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
   creditCard?: Prisma.CreditCardUpdateOneWithoutTransactionsNestedInput
+  paidCreditCard?: Prisma.CreditCardUpdateOneWithoutInvoicePaymentsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
 }
 
@@ -978,6 +1113,7 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -991,6 +1127,7 @@ export type TransactionUncheckedUpdateManyWithoutAccountInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1004,6 +1141,21 @@ export type TransactionCreateManyCreditCardInput = {
   date: Date | string
   userId: string
   accountId?: string | null
+  paidCreditCardId?: string | null
+  categoryId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TransactionCreateManyPaidCreditCardInput = {
+  id?: string
+  description: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type: string
+  date: Date | string
+  userId: string
+  accountId?: string | null
+  creditCardId?: string | null
   categoryId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1019,6 +1171,7 @@ export type TransactionUpdateWithoutCreditCardInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
   account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
+  paidCreditCard?: Prisma.CreditCardUpdateOneWithoutInvoicePaymentsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
 }
 
@@ -1030,6 +1183,7 @@ export type TransactionUncheckedUpdateWithoutCreditCardInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1043,6 +1197,49 @@ export type TransactionUncheckedUpdateManyWithoutCreditCardInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TransactionUpdateWithoutPaidCreditCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
+  account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
+  creditCard?: Prisma.CreditCardUpdateOneWithoutTransactionsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutPaidCreditCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TransactionUncheckedUpdateManyWithoutPaidCreditCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1057,6 +1254,7 @@ export type TransactionCreateManyCategoryInput = {
   userId: string
   accountId?: string | null
   creditCardId?: string | null
+  paidCreditCardId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1072,6 +1270,7 @@ export type TransactionUpdateWithoutCategoryInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
   account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
   creditCard?: Prisma.CreditCardUpdateOneWithoutTransactionsNestedInput
+  paidCreditCard?: Prisma.CreditCardUpdateOneWithoutInvoicePaymentsNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutCategoryInput = {
@@ -1083,6 +1282,7 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1096,6 +1296,7 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1111,12 +1312,14 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   userId?: boolean
   accountId?: boolean
   creditCardId?: boolean
+  paidCreditCardId?: boolean
   categoryId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
@@ -1129,12 +1332,14 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   userId?: boolean
   accountId?: boolean
   creditCardId?: boolean
+  paidCreditCardId?: boolean
   categoryId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
@@ -1147,12 +1352,14 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   userId?: boolean
   accountId?: boolean
   creditCardId?: boolean
+  paidCreditCardId?: boolean
   categoryId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
@@ -1165,28 +1372,32 @@ export type TransactionSelectScalar = {
   userId?: boolean
   accountId?: boolean
   creditCardId?: boolean
+  paidCreditCardId?: boolean
   categoryId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "amount" | "type" | "date" | "userId" | "accountId" | "creditCardId" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "amount" | "type" | "date" | "userId" | "accountId" | "creditCardId" | "paidCreditCardId" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }
 export type TransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }
 export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
   creditCard?: boolean | Prisma.Transaction$creditCardArgs<ExtArgs>
+  paidCreditCard?: boolean | Prisma.Transaction$paidCreditCardArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
 }
 
@@ -1196,6 +1407,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     user: Prisma.$UserPayload<ExtArgs>
     account: Prisma.$AccountPayload<ExtArgs> | null
     creditCard: Prisma.$CreditCardPayload<ExtArgs> | null
+    paidCreditCard: Prisma.$CreditCardPayload<ExtArgs> | null
     category: Prisma.$CategoryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1207,6 +1419,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     userId: string
     accountId: string | null
     creditCardId: string | null
+    paidCreditCardId: string | null
     categoryId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1607,6 +1820,7 @@ export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends runt
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.Transaction$accountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$accountArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   creditCard<T extends Prisma.Transaction$creditCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$creditCardArgs<ExtArgs>>): Prisma.Prisma__CreditCardClient<runtime.Types.Result.GetResult<Prisma.$CreditCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  paidCreditCard<T extends Prisma.Transaction$paidCreditCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$paidCreditCardArgs<ExtArgs>>): Prisma.Prisma__CreditCardClient<runtime.Types.Result.GetResult<Prisma.$CreditCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.Transaction$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1645,6 +1859,7 @@ export interface TransactionFieldRefs {
   readonly userId: Prisma.FieldRef<"Transaction", 'String'>
   readonly accountId: Prisma.FieldRef<"Transaction", 'String'>
   readonly creditCardId: Prisma.FieldRef<"Transaction", 'String'>
+  readonly paidCreditCardId: Prisma.FieldRef<"Transaction", 'String'>
   readonly categoryId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
@@ -2071,6 +2286,25 @@ export type Transaction$accountArgs<ExtArgs extends runtime.Types.Extensions.Int
  * Transaction.creditCard
  */
 export type Transaction$creditCardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CreditCard
+   */
+  select?: Prisma.CreditCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CreditCard
+   */
+  omit?: Prisma.CreditCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreditCardInclude<ExtArgs> | null
+  where?: Prisma.CreditCardWhereInput
+}
+
+/**
+ * Transaction.paidCreditCard
+ */
+export type Transaction$paidCreditCardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the CreditCard
    */

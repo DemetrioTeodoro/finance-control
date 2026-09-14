@@ -49,7 +49,8 @@ model CreditCard {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  transactions Transaction[]
+  transactions    Transaction[]
+  invoicePayments Transaction[] @relation("CreditCardInvoicePayment")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -88,6 +89,9 @@ model Transaction {
 
   creditCardId String?
   creditCard   CreditCard? @relation(fields: [creditCardId], references: [id], onDelete: SetNull)
+
+  paidCreditCardId String?
+  paidCreditCard   CreditCard? @relation("CreditCardInvoicePayment", fields: [paidCreditCardId], references: [id], onDelete: SetNull)
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
