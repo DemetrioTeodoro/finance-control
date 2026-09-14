@@ -32,6 +32,7 @@ type Transaction = {
   accountId: string | null;
   categoryId: string | null;
   creditCardId: string | null;
+  paidCreditCardId: string | null;
 };
 
 type TransactionEditFormProps = {
@@ -147,6 +148,26 @@ export function TransactionEditForm({
               </option>
             ))}
           </select>
+
+          <div className="space-y-1">
+            <label className="text-sm text-muted-foreground">
+              Esta despesa é o pagamento de uma fatura?
+            </label>
+
+            <select
+              name="paidCreditCardId"
+              defaultValue={transaction.paidCreditCardId ?? ""}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Não</option>
+
+              {creditCards.map((creditCard) => (
+                <option key={creditCard.id} value={creditCard.id}>
+                  Sim, fatura do {creditCard.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {message && <p className="text-sm text-destructive">{message}</p>}
 
