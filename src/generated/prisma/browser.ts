@@ -42,3 +42,13 @@ export type Category = Prisma.CategoryModel
  * 
  */
 export type Transaction = Prisma.TransactionModel
+/**
+ * Model RecurringBill
+ * 
+ */
+export type RecurringBill = Prisma.RecurringBillModel
+/**
+ * Model RecurringBillPayment
+ * 
+ */
+export type RecurringBillPayment = Prisma.RecurringBillPaymentModel
