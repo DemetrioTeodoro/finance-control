@@ -401,7 +401,9 @@ export const ModelName = {
   Account: 'Account',
   CreditCard: 'CreditCard',
   Category: 'Category',
-  Transaction: 'Transaction'
+  Transaction: 'Transaction',
+  RecurringBill: 'RecurringBill',
+  RecurringBillPayment: 'RecurringBillPayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "creditCard" | "category" | "transaction"
+    modelProps: "user" | "account" | "creditCard" | "category" | "transaction" | "recurringBill" | "recurringBillPayment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -791,6 +793,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RecurringBill: {
+      payload: Prisma.$RecurringBillPayload<ExtArgs>
+      fields: Prisma.RecurringBillFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecurringBillFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecurringBillFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        findFirst: {
+          args: Prisma.RecurringBillFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecurringBillFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        findMany: {
+          args: Prisma.RecurringBillFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        create: {
+          args: Prisma.RecurringBillCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        createMany: {
+          args: Prisma.RecurringBillCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecurringBillCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        delete: {
+          args: Prisma.RecurringBillDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        update: {
+          args: Prisma.RecurringBillUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecurringBillDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecurringBillUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecurringBillUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecurringBillUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        aggregate: {
+          args: Prisma.RecurringBillAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecurringBill>
+        }
+        groupBy: {
+          args: Prisma.RecurringBillGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecurringBillCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillCountAggregateOutputType> | number
+        }
+      }
+    }
+    RecurringBillPayment: {
+      payload: Prisma.$RecurringBillPaymentPayload<ExtArgs>
+      fields: Prisma.RecurringBillPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecurringBillPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecurringBillPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.RecurringBillPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecurringBillPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.RecurringBillPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.RecurringBillPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.RecurringBillPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecurringBillPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.RecurringBillPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        update: {
+          args: Prisma.RecurringBillPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecurringBillPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecurringBillPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecurringBillPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecurringBillPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.RecurringBillPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecurringBillPayment>
+        }
+        groupBy: {
+          args: Prisma.RecurringBillPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecurringBillPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillPaymentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -899,6 +1049,33 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const RecurringBillScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  expectedAmount: 'expectedAmount',
+  dueDay: 'dueDay',
+  active: 'active',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecurringBillScalarFieldEnum = (typeof RecurringBillScalarFieldEnum)[keyof typeof RecurringBillScalarFieldEnum]
+
+
+export const RecurringBillPaymentScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  month: 'month',
+  recurringBillId: 'recurringBillId',
+  transactionId: 'transactionId',
+  confirmedAt: 'confirmedAt'
+} as const
+
+export type RecurringBillPaymentScalarFieldEnum = (typeof RecurringBillPaymentScalarFieldEnum)[keyof typeof RecurringBillPaymentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1163,6 +1340,8 @@ export type GlobalOmitConfig = {
   creditCard?: Prisma.CreditCardOmit
   category?: Prisma.CategoryOmit
   transaction?: Prisma.TransactionOmit
+  recurringBill?: Prisma.RecurringBillOmit
+  recurringBillPayment?: Prisma.RecurringBillPaymentOmit
 }
 
 /* Types for Logging */
