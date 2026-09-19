@@ -10,6 +10,7 @@ import {
   BarChart3,
   Landmark,
   CircleDollarSign,
+  CalendarCheck,
   X,
 } from "lucide-react";
 
@@ -35,6 +36,11 @@ const menu = [
     name: "Cartões",
     href: "/cartoes",
     icon: CreditCard,
+  },
+  {
+    name: "Contas fixas",
+    href: "/contas-fixas",
+    icon: CalendarCheck,
   },
   {
     name: "Categorias",
