@@ -18,10 +18,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts     Account[]
-  creditCards  CreditCard[]
-  categories   Category[]
-  transactions Transaction[]
+  accounts       Account[]
+  creditCards    CreditCard[]
+  categories     Category[]
+  transactions   Transaction[]
+  recurringBills RecurringBill[]
 }
 
 model Account {
@@ -65,7 +66,8 @@ model Category {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  transactions Transaction[]
+  transactions   Transaction[]
+  recurringBills RecurringBill[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,6 +98,43 @@ model Transaction {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  recurringBillPayments RecurringBillPayment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model RecurringBill {
+  id             String   @id @default(cuid())
+  name           String
+  expectedAmount Decimal?
+  dueDay         Int
+  active         Boolean  @default(true)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  payments RecurringBillPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RecurringBillPayment {
+  id    String @id @default(cuid())
+  year  Int
+  month Int // 0-indexado, igual ao Date nativo (mesma convenção de InvoiceCycleKey)
+
+  recurringBillId String
+  recurringBill   RecurringBill @relation(fields: [recurringBillId], references: [id], onDelete: Cascade)
+
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  confirmedAt DateTime @default(now())
+
+  @@unique([recurringBillId, year, month])
 }
