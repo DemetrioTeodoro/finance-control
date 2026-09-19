@@ -17,5 +17,8 @@
   "rewrites": [
     { "source": "/python-backend/(.*)", "destination": { "service": "py_api" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
+  ],
+  "crons": [
+    { "path": "/api/cron/recurring-bills", "schedule": "0 11 * * *" }
   ]
 }
