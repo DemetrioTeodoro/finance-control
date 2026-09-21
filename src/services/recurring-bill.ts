@@ -29,6 +29,7 @@ type ConfirmPaymentInput = {
   recurringBillId: string;
   year: number;
   month: number;
+  transactionId?: string | null;
 };
 
 function isValidDay(day: number) {
@@ -157,13 +158,25 @@ export async function deleteRecurringBill(input: DeleteRecurringBillInput) {
 
 /**
  * Lista as contas fixas do usuário com o status de pagamento do mês
- * informado (padrão: mês atual). "Pago" cobre tanto a confirmação manual
- * quanto o casamento automático feito por `checkRecurringBillsForReminders`.
+ * informado (padrão: os últimos `monthsCount` meses, mês atual incluso).
+ * "Pago" cobre tanto a confirmação manual quanto o casamento automático
+ * feito por `checkRecurringBillsForReminders`. O histórico existe para o
+ * usuário conseguir enxergar (e corrigir) meses anteriores num só lugar,
+ * em vez de só o mês corrente.
  */
-export async function getRecurringBillsWithStatus(
+export async function getRecurringBillsWithHistory(
   userId: string,
-  reference: { year: number; month: number } = getCurrentYearMonth(),
+  monthsCount = 6,
 ) {
+  const { year: currentYear, month: currentMonth } = getCurrentYearMonth();
+
+  const months = Array.from({ length: monthsCount }, (_, index) => {
+    const offset = monthsCount - 1 - index;
+    const date = new Date(currentYear, currentMonth - offset, 1);
+
+    return { year: date.getFullYear(), month: date.getMonth() };
+  });
+
   const recurringBills = await prisma.recurringBill.findMany({
     where: {
       userId,
@@ -178,10 +191,21 @@ export async function getRecurringBillsWithStatus(
       },
       payments: {
         where: {
-          year: reference.year,
-          month: reference.month,
+          OR: months.map((reference) => ({
+            year: reference.year,
+            month: reference.month,
+          })),
         },
-        take: 1,
+        include: {
+          transaction: {
+            select: {
+              id: true,
+              description: true,
+              amount: true,
+              date: true,
+            },
+          },
+        },
       },
     },
     orderBy: {
@@ -189,8 +213,13 @@ export async function getRecurringBillsWithStatus(
     },
   });
 
-  return recurringBills.map((recurringBill) => {
-    const payment = recurringBill.payments[0] ?? null;
+  const bills = recurringBills.map((recurringBill) => {
+    const paymentByKey = new Map(
+      recurringBill.payments.map((payment) => [
+        `${payment.year}-${payment.month}`,
+        payment,
+      ]),
+    );
 
     return {
       id: recurringBill.id,
@@ -202,15 +231,98 @@ export async function getRecurringBillsWithStatus(
       dueDay: recurringBill.dueDay,
       active: recurringBill.active,
       category: recurringBill.category,
-      dueDate: resolveDueDate(
-        recurringBill.dueDay,
-        reference.year,
-        reference.month,
-      ),
-      paid: payment !== null,
-      confirmedAutomatically: payment?.transactionId !== null && payment !== null,
+      history: months.map((reference) => {
+        const payment =
+          paymentByKey.get(`${reference.year}-${reference.month}`) ?? null;
+
+        return {
+          year: reference.year,
+          month: reference.month,
+          paid: payment !== null,
+          confirmedAutomatically: payment?.transactionId != null,
+          transaction: payment?.transaction
+            ? {
+                id: payment.transaction.id,
+                description: payment.transaction.description,
+                amount: Number(payment.transaction.amount),
+                date: payment.transaction.date,
+              }
+            : null,
+        };
+      }),
     };
   });
+
+  return { months, bills };
+}
+
+/**
+ * Transações de despesa dos meses informados, para o usuário escolher qual
+ * vincular ao confirmar manualmente o pagamento de uma conta fixa. Agrupado
+ * por "year-month" para consulta rápida no lado do servidor (`page.tsx`),
+ * sem precisar de uma query por célula do checklist.
+ */
+export async function getExpenseTransactionOptionsByMonth(
+  userId: string,
+  months: { year: number; month: number }[],
+) {
+  if (months.length === 0) {
+    return {};
+  }
+
+  const periodStart = new Date(months[0].year, months[0].month, 1);
+  const lastMonth = months[months.length - 1];
+  const periodEnd = new Date(
+    lastMonth.year,
+    lastMonth.month + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      userId,
+      type: "expense",
+      date: {
+        gte: periodStart,
+        lte: periodEnd,
+      },
+    },
+    select: {
+      id: true,
+      description: true,
+      amount: true,
+      date: true,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+
+  const byMonth: Record<
+    string,
+    { id: string; description: string; amount: number; date: Date }[]
+  > = {};
+
+  for (const transaction of transactions) {
+    const key = `${transaction.date.getFullYear()}-${transaction.date.getMonth()}`;
+
+    if (!byMonth[key]) {
+      byMonth[key] = [];
+    }
+
+    byMonth[key].push({
+      id: transaction.id,
+      description: transaction.description,
+      amount: Number(transaction.amount),
+      date: transaction.date,
+    });
+  }
+
+  return byMonth;
 }
 
 async function findMatchingTransaction(
@@ -250,6 +362,21 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
     throw new Error("RECURRING_BILL_NOT_FOUND");
   }
 
+  const transactionId = input.transactionId ?? null;
+
+  if (transactionId) {
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        id: transactionId,
+        userId: input.userId,
+      },
+    });
+
+    if (!transaction) {
+      throw new Error("TRANSACTION_NOT_FOUND");
+    }
+  }
+
   return prisma.recurringBillPayment.upsert({
     where: {
       recurringBillId_year_month: {
@@ -262,8 +389,11 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
       recurringBillId: recurringBill.id,
       year: input.year,
       month: input.month,
+      transactionId,
     },
-    update: {},
+    update: {
+      transactionId,
+    },
   });
 }
 
