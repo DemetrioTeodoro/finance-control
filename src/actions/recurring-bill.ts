@@ -179,18 +179,27 @@ export async function confirmRecurringBillPayment(formData: FormData) {
     return { error: "Conta fixa não encontrada." };
   }
 
+  const transactionId = formData.get("transactionId")?.toString().trim() || null;
+
   try {
     await confirmRecurringBillPaymentService({
       userId: session.user.id,
       recurringBillId,
       year,
       month,
+      transactionId,
     });
 
     return { success: true };
   } catch (error) {
-    if (error instanceof Error && error.message === "RECURRING_BILL_NOT_FOUND") {
-      return { error: "Conta fixa não encontrada." };
+    if (error instanceof Error) {
+      if (error.message === "RECURRING_BILL_NOT_FOUND") {
+        return { error: "Conta fixa não encontrada." };
+      }
+
+      if (error.message === "TRANSACTION_NOT_FOUND") {
+        return { error: "Transação não encontrada." };
+      }
     }
 
     console.error("Erro ao confirmar pagamento da conta fixa:", error);
