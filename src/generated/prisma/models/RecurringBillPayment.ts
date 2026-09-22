@@ -14,7 +14,9 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model RecurringBillPayment
- * 
+ * Confirmação manual de pagamento SEM transação vinculada (ex.: pago em
+ * dinheiro, fora do fluxo rastreado). Quando há uma transação, o vínculo é
+ * feito direto em `Transaction.paidRecurringBillId` — não duplicado aqui.
  */
 export type RecurringBillPaymentModel = runtime.Types.Result.DefaultSelection<Prisma.$RecurringBillPaymentPayload>
 
@@ -41,7 +43,6 @@ export type RecurringBillPaymentMinAggregateOutputType = {
   year: number | null
   month: number | null
   recurringBillId: string | null
-  transactionId: string | null
   confirmedAt: Date | null
 }
 
@@ -50,7 +51,6 @@ export type RecurringBillPaymentMaxAggregateOutputType = {
   year: number | null
   month: number | null
   recurringBillId: string | null
-  transactionId: string | null
   confirmedAt: Date | null
 }
 
@@ -59,7 +59,6 @@ export type RecurringBillPaymentCountAggregateOutputType = {
   year: number
   month: number
   recurringBillId: number
-  transactionId: number
   confirmedAt: number
   _all: number
 }
@@ -80,7 +79,6 @@ export type RecurringBillPaymentMinAggregateInputType = {
   year?: true
   month?: true
   recurringBillId?: true
-  transactionId?: true
   confirmedAt?: true
 }
 
@@ -89,7 +87,6 @@ export type RecurringBillPaymentMaxAggregateInputType = {
   year?: true
   month?: true
   recurringBillId?: true
-  transactionId?: true
   confirmedAt?: true
 }
 
@@ -98,7 +95,6 @@ export type RecurringBillPaymentCountAggregateInputType = {
   year?: true
   month?: true
   recurringBillId?: true
-  transactionId?: true
   confirmedAt?: true
   _all?: true
 }
@@ -194,7 +190,6 @@ export type RecurringBillPaymentGroupByOutputType = {
   year: number
   month: number
   recurringBillId: string
-  transactionId: string | null
   confirmedAt: Date
   _count: RecurringBillPaymentCountAggregateOutputType | null
   _avg: RecurringBillPaymentAvgAggregateOutputType | null
@@ -226,10 +221,8 @@ export type RecurringBillPaymentWhereInput = {
   year?: Prisma.IntFilter<"RecurringBillPayment"> | number
   month?: Prisma.IntFilter<"RecurringBillPayment"> | number
   recurringBillId?: Prisma.StringFilter<"RecurringBillPayment"> | string
-  transactionId?: Prisma.StringNullableFilter<"RecurringBillPayment"> | string | null
   confirmedAt?: Prisma.DateTimeFilter<"RecurringBillPayment"> | Date | string
   recurringBill?: Prisma.XOR<Prisma.RecurringBillScalarRelationFilter, Prisma.RecurringBillWhereInput>
-  transaction?: Prisma.XOR<Prisma.TransactionNullableScalarRelationFilter, Prisma.TransactionWhereInput> | null
 }
 
 export type RecurringBillPaymentOrderByWithRelationInput = {
@@ -237,10 +230,8 @@ export type RecurringBillPaymentOrderByWithRelationInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   recurringBillId?: Prisma.SortOrder
-  transactionId?: Prisma.SortOrderInput | Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
   recurringBill?: Prisma.RecurringBillOrderByWithRelationInput
-  transaction?: Prisma.TransactionOrderByWithRelationInput
 }
 
 export type RecurringBillPaymentWhereUniqueInput = Prisma.AtLeast<{
@@ -252,10 +243,8 @@ export type RecurringBillPaymentWhereUniqueInput = Prisma.AtLeast<{
   year?: Prisma.IntFilter<"RecurringBillPayment"> | number
   month?: Prisma.IntFilter<"RecurringBillPayment"> | number
   recurringBillId?: Prisma.StringFilter<"RecurringBillPayment"> | string
-  transactionId?: Prisma.StringNullableFilter<"RecurringBillPayment"> | string | null
   confirmedAt?: Prisma.DateTimeFilter<"RecurringBillPayment"> | Date | string
   recurringBill?: Prisma.XOR<Prisma.RecurringBillScalarRelationFilter, Prisma.RecurringBillWhereInput>
-  transaction?: Prisma.XOR<Prisma.TransactionNullableScalarRelationFilter, Prisma.TransactionWhereInput> | null
 }, "id" | "recurringBillId_year_month">
 
 export type RecurringBillPaymentOrderByWithAggregationInput = {
@@ -263,7 +252,6 @@ export type RecurringBillPaymentOrderByWithAggregationInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   recurringBillId?: Prisma.SortOrder
-  transactionId?: Prisma.SortOrderInput | Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
   _count?: Prisma.RecurringBillPaymentCountOrderByAggregateInput
   _avg?: Prisma.RecurringBillPaymentAvgOrderByAggregateInput
@@ -280,7 +268,6 @@ export type RecurringBillPaymentScalarWhereWithAggregatesInput = {
   year?: Prisma.IntWithAggregatesFilter<"RecurringBillPayment"> | number
   month?: Prisma.IntWithAggregatesFilter<"RecurringBillPayment"> | number
   recurringBillId?: Prisma.StringWithAggregatesFilter<"RecurringBillPayment"> | string
-  transactionId?: Prisma.StringNullableWithAggregatesFilter<"RecurringBillPayment"> | string | null
   confirmedAt?: Prisma.DateTimeWithAggregatesFilter<"RecurringBillPayment"> | Date | string
 }
 
@@ -290,7 +277,6 @@ export type RecurringBillPaymentCreateInput = {
   month: number
   confirmedAt?: Date | string
   recurringBill: Prisma.RecurringBillCreateNestedOneWithoutPaymentsInput
-  transaction?: Prisma.TransactionCreateNestedOneWithoutRecurringBillPaymentsInput
 }
 
 export type RecurringBillPaymentUncheckedCreateInput = {
@@ -298,7 +284,6 @@ export type RecurringBillPaymentUncheckedCreateInput = {
   year: number
   month: number
   recurringBillId: string
-  transactionId?: string | null
   confirmedAt?: Date | string
 }
 
@@ -308,7 +293,6 @@ export type RecurringBillPaymentUpdateInput = {
   month?: Prisma.IntFieldUpdateOperationsInput | number
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurringBill?: Prisma.RecurringBillUpdateOneRequiredWithoutPaymentsNestedInput
-  transaction?: Prisma.TransactionUpdateOneWithoutRecurringBillPaymentsNestedInput
 }
 
 export type RecurringBillPaymentUncheckedUpdateInput = {
@@ -316,7 +300,6 @@ export type RecurringBillPaymentUncheckedUpdateInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   recurringBillId?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -325,7 +308,6 @@ export type RecurringBillPaymentCreateManyInput = {
   year: number
   month: number
   recurringBillId: string
-  transactionId?: string | null
   confirmedAt?: Date | string
 }
 
@@ -341,7 +323,6 @@ export type RecurringBillPaymentUncheckedUpdateManyInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   recurringBillId?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -366,7 +347,6 @@ export type RecurringBillPaymentCountOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   recurringBillId?: Prisma.SortOrder
-  transactionId?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
 
@@ -380,7 +360,6 @@ export type RecurringBillPaymentMaxOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   recurringBillId?: Prisma.SortOrder
-  transactionId?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
 
@@ -389,55 +368,12 @@ export type RecurringBillPaymentMinOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   recurringBillId?: Prisma.SortOrder
-  transactionId?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
 
 export type RecurringBillPaymentSumOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
-}
-
-export type RecurringBillPaymentCreateNestedManyWithoutTransactionInput = {
-  create?: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput> | Prisma.RecurringBillPaymentCreateWithoutTransactionInput[] | Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput[]
-  connectOrCreate?: Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput | Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput[]
-  createMany?: Prisma.RecurringBillPaymentCreateManyTransactionInputEnvelope
-  connect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-}
-
-export type RecurringBillPaymentUncheckedCreateNestedManyWithoutTransactionInput = {
-  create?: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput> | Prisma.RecurringBillPaymentCreateWithoutTransactionInput[] | Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput[]
-  connectOrCreate?: Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput | Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput[]
-  createMany?: Prisma.RecurringBillPaymentCreateManyTransactionInputEnvelope
-  connect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-}
-
-export type RecurringBillPaymentUpdateManyWithoutTransactionNestedInput = {
-  create?: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput> | Prisma.RecurringBillPaymentCreateWithoutTransactionInput[] | Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput[]
-  connectOrCreate?: Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput | Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput[]
-  upsert?: Prisma.RecurringBillPaymentUpsertWithWhereUniqueWithoutTransactionInput | Prisma.RecurringBillPaymentUpsertWithWhereUniqueWithoutTransactionInput[]
-  createMany?: Prisma.RecurringBillPaymentCreateManyTransactionInputEnvelope
-  set?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  disconnect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  delete?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  connect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  update?: Prisma.RecurringBillPaymentUpdateWithWhereUniqueWithoutTransactionInput | Prisma.RecurringBillPaymentUpdateWithWhereUniqueWithoutTransactionInput[]
-  updateMany?: Prisma.RecurringBillPaymentUpdateManyWithWhereWithoutTransactionInput | Prisma.RecurringBillPaymentUpdateManyWithWhereWithoutTransactionInput[]
-  deleteMany?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
-}
-
-export type RecurringBillPaymentUncheckedUpdateManyWithoutTransactionNestedInput = {
-  create?: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput> | Prisma.RecurringBillPaymentCreateWithoutTransactionInput[] | Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput[]
-  connectOrCreate?: Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput | Prisma.RecurringBillPaymentCreateOrConnectWithoutTransactionInput[]
-  upsert?: Prisma.RecurringBillPaymentUpsertWithWhereUniqueWithoutTransactionInput | Prisma.RecurringBillPaymentUpsertWithWhereUniqueWithoutTransactionInput[]
-  createMany?: Prisma.RecurringBillPaymentCreateManyTransactionInputEnvelope
-  set?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  disconnect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  delete?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  connect?: Prisma.RecurringBillPaymentWhereUniqueInput | Prisma.RecurringBillPaymentWhereUniqueInput[]
-  update?: Prisma.RecurringBillPaymentUpdateWithWhereUniqueWithoutTransactionInput | Prisma.RecurringBillPaymentUpdateWithWhereUniqueWithoutTransactionInput[]
-  updateMany?: Prisma.RecurringBillPaymentUpdateManyWithWhereWithoutTransactionInput | Prisma.RecurringBillPaymentUpdateManyWithWhereWithoutTransactionInput[]
-  deleteMany?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
 }
 
 export type RecurringBillPaymentCreateNestedManyWithoutRecurringBillInput = {
@@ -482,73 +418,17 @@ export type RecurringBillPaymentUncheckedUpdateManyWithoutRecurringBillNestedInp
   deleteMany?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
 }
 
-export type RecurringBillPaymentCreateWithoutTransactionInput = {
-  id?: string
-  year: number
-  month: number
-  confirmedAt?: Date | string
-  recurringBill: Prisma.RecurringBillCreateNestedOneWithoutPaymentsInput
-}
-
-export type RecurringBillPaymentUncheckedCreateWithoutTransactionInput = {
-  id?: string
-  year: number
-  month: number
-  recurringBillId: string
-  confirmedAt?: Date | string
-}
-
-export type RecurringBillPaymentCreateOrConnectWithoutTransactionInput = {
-  where: Prisma.RecurringBillPaymentWhereUniqueInput
-  create: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput>
-}
-
-export type RecurringBillPaymentCreateManyTransactionInputEnvelope = {
-  data: Prisma.RecurringBillPaymentCreateManyTransactionInput | Prisma.RecurringBillPaymentCreateManyTransactionInput[]
-  skipDuplicates?: boolean
-}
-
-export type RecurringBillPaymentUpsertWithWhereUniqueWithoutTransactionInput = {
-  where: Prisma.RecurringBillPaymentWhereUniqueInput
-  update: Prisma.XOR<Prisma.RecurringBillPaymentUpdateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedUpdateWithoutTransactionInput>
-  create: Prisma.XOR<Prisma.RecurringBillPaymentCreateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedCreateWithoutTransactionInput>
-}
-
-export type RecurringBillPaymentUpdateWithWhereUniqueWithoutTransactionInput = {
-  where: Prisma.RecurringBillPaymentWhereUniqueInput
-  data: Prisma.XOR<Prisma.RecurringBillPaymentUpdateWithoutTransactionInput, Prisma.RecurringBillPaymentUncheckedUpdateWithoutTransactionInput>
-}
-
-export type RecurringBillPaymentUpdateManyWithWhereWithoutTransactionInput = {
-  where: Prisma.RecurringBillPaymentScalarWhereInput
-  data: Prisma.XOR<Prisma.RecurringBillPaymentUpdateManyMutationInput, Prisma.RecurringBillPaymentUncheckedUpdateManyWithoutTransactionInput>
-}
-
-export type RecurringBillPaymentScalarWhereInput = {
-  AND?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
-  OR?: Prisma.RecurringBillPaymentScalarWhereInput[]
-  NOT?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
-  id?: Prisma.StringFilter<"RecurringBillPayment"> | string
-  year?: Prisma.IntFilter<"RecurringBillPayment"> | number
-  month?: Prisma.IntFilter<"RecurringBillPayment"> | number
-  recurringBillId?: Prisma.StringFilter<"RecurringBillPayment"> | string
-  transactionId?: Prisma.StringNullableFilter<"RecurringBillPayment"> | string | null
-  confirmedAt?: Prisma.DateTimeFilter<"RecurringBillPayment"> | Date | string
-}
-
 export type RecurringBillPaymentCreateWithoutRecurringBillInput = {
   id?: string
   year: number
   month: number
   confirmedAt?: Date | string
-  transaction?: Prisma.TransactionCreateNestedOneWithoutRecurringBillPaymentsInput
 }
 
 export type RecurringBillPaymentUncheckedCreateWithoutRecurringBillInput = {
   id?: string
   year: number
   month: number
-  transactionId?: string | null
   confirmedAt?: Date | string
 }
 
@@ -578,43 +458,21 @@ export type RecurringBillPaymentUpdateManyWithWhereWithoutRecurringBillInput = {
   data: Prisma.XOR<Prisma.RecurringBillPaymentUpdateManyMutationInput, Prisma.RecurringBillPaymentUncheckedUpdateManyWithoutRecurringBillInput>
 }
 
-export type RecurringBillPaymentCreateManyTransactionInput = {
-  id?: string
-  year: number
-  month: number
-  recurringBillId: string
-  confirmedAt?: Date | string
-}
-
-export type RecurringBillPaymentUpdateWithoutTransactionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
-  month?: Prisma.IntFieldUpdateOperationsInput | number
-  confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  recurringBill?: Prisma.RecurringBillUpdateOneRequiredWithoutPaymentsNestedInput
-}
-
-export type RecurringBillPaymentUncheckedUpdateWithoutTransactionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
-  month?: Prisma.IntFieldUpdateOperationsInput | number
-  recurringBillId?: Prisma.StringFieldUpdateOperationsInput | string
-  confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type RecurringBillPaymentUncheckedUpdateManyWithoutTransactionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
-  month?: Prisma.IntFieldUpdateOperationsInput | number
-  recurringBillId?: Prisma.StringFieldUpdateOperationsInput | string
-  confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type RecurringBillPaymentScalarWhereInput = {
+  AND?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
+  OR?: Prisma.RecurringBillPaymentScalarWhereInput[]
+  NOT?: Prisma.RecurringBillPaymentScalarWhereInput | Prisma.RecurringBillPaymentScalarWhereInput[]
+  id?: Prisma.StringFilter<"RecurringBillPayment"> | string
+  year?: Prisma.IntFilter<"RecurringBillPayment"> | number
+  month?: Prisma.IntFilter<"RecurringBillPayment"> | number
+  recurringBillId?: Prisma.StringFilter<"RecurringBillPayment"> | string
+  confirmedAt?: Prisma.DateTimeFilter<"RecurringBillPayment"> | Date | string
 }
 
 export type RecurringBillPaymentCreateManyRecurringBillInput = {
   id?: string
   year: number
   month: number
-  transactionId?: string | null
   confirmedAt?: Date | string
 }
 
@@ -623,14 +481,12 @@ export type RecurringBillPaymentUpdateWithoutRecurringBillInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaction?: Prisma.TransactionUpdateOneWithoutRecurringBillPaymentsNestedInput
 }
 
 export type RecurringBillPaymentUncheckedUpdateWithoutRecurringBillInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
-  transactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -638,7 +494,6 @@ export type RecurringBillPaymentUncheckedUpdateManyWithoutRecurringBillInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
-  transactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -649,10 +504,8 @@ export type RecurringBillPaymentSelect<ExtArgs extends runtime.Types.Extensions.
   year?: boolean
   month?: boolean
   recurringBillId?: boolean
-  transactionId?: boolean
   confirmedAt?: boolean
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }, ExtArgs["result"]["recurringBillPayment"]>
 
 export type RecurringBillPaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -660,10 +513,8 @@ export type RecurringBillPaymentSelectCreateManyAndReturn<ExtArgs extends runtim
   year?: boolean
   month?: boolean
   recurringBillId?: boolean
-  transactionId?: boolean
   confirmedAt?: boolean
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }, ExtArgs["result"]["recurringBillPayment"]>
 
 export type RecurringBillPaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -671,10 +522,8 @@ export type RecurringBillPaymentSelectUpdateManyAndReturn<ExtArgs extends runtim
   year?: boolean
   month?: boolean
   recurringBillId?: boolean
-  transactionId?: boolean
   confirmedAt?: boolean
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }, ExtArgs["result"]["recurringBillPayment"]>
 
 export type RecurringBillPaymentSelectScalar = {
@@ -682,36 +531,30 @@ export type RecurringBillPaymentSelectScalar = {
   year?: boolean
   month?: boolean
   recurringBillId?: boolean
-  transactionId?: boolean
   confirmedAt?: boolean
 }
 
-export type RecurringBillPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "year" | "month" | "recurringBillId" | "transactionId" | "confirmedAt", ExtArgs["result"]["recurringBillPayment"]>
+export type RecurringBillPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "year" | "month" | "recurringBillId" | "confirmedAt", ExtArgs["result"]["recurringBillPayment"]>
 export type RecurringBillPaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }
 export type RecurringBillPaymentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }
 export type RecurringBillPaymentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   recurringBill?: boolean | Prisma.RecurringBillDefaultArgs<ExtArgs>
-  transaction?: boolean | Prisma.RecurringBillPayment$transactionArgs<ExtArgs>
 }
 
 export type $RecurringBillPaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RecurringBillPayment"
   objects: {
     recurringBill: Prisma.$RecurringBillPayload<ExtArgs>
-    transaction: Prisma.$TransactionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     year: number
     month: number
     recurringBillId: string
-    transactionId: string | null
     confirmedAt: Date
   }, ExtArgs["result"]["recurringBillPayment"]>
   composites: {}
@@ -1108,7 +951,6 @@ readonly fields: RecurringBillPaymentFieldRefs;
 export interface Prisma__RecurringBillPaymentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   recurringBill<T extends Prisma.RecurringBillDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringBillDefaultArgs<ExtArgs>>): Prisma.Prisma__RecurringBillClient<runtime.Types.Result.GetResult<Prisma.$RecurringBillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  transaction<T extends Prisma.RecurringBillPayment$transactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringBillPayment$transactionArgs<ExtArgs>>): Prisma.Prisma__TransactionClient<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1142,7 +984,6 @@ export interface RecurringBillPaymentFieldRefs {
   readonly year: Prisma.FieldRef<"RecurringBillPayment", 'Int'>
   readonly month: Prisma.FieldRef<"RecurringBillPayment", 'Int'>
   readonly recurringBillId: Prisma.FieldRef<"RecurringBillPayment", 'String'>
-  readonly transactionId: Prisma.FieldRef<"RecurringBillPayment", 'String'>
   readonly confirmedAt: Prisma.FieldRef<"RecurringBillPayment", 'DateTime'>
 }
     
@@ -1542,25 +1383,6 @@ export type RecurringBillPaymentDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many RecurringBillPayments to delete.
    */
   limit?: number
-}
-
-/**
- * RecurringBillPayment.transaction
- */
-export type RecurringBillPayment$transactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Transaction
-   */
-  select?: Prisma.TransactionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Transaction
-   */
-  omit?: Prisma.TransactionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TransactionInclude<ExtArgs> | null
-  where?: Prisma.TransactionWhereInput
 }
 
 /**
