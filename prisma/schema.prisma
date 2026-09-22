@@ -95,10 +95,11 @@ model Transaction {
   paidCreditCardId String?
   paidCreditCard   CreditCard? @relation("CreditCardInvoicePayment", fields: [paidCreditCardId], references: [id], onDelete: SetNull)
 
+  paidRecurringBillId String?
+  paidRecurringBill   RecurringBill? @relation("RecurringBillPaymentTransaction", fields: [paidRecurringBillId], references: [id], onDelete: SetNull)
+
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  recurringBillPayments RecurringBillPayment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -117,12 +118,16 @@ model RecurringBill {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  payments RecurringBillPayment[]
+  payments           RecurringBillPayment[]
+  paidByTransactions Transaction[]          @relation("RecurringBillPaymentTransaction")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+/// Confirmação manual de pagamento SEM transação vinculada (ex.: pago em
+/// dinheiro, fora do fluxo rastreado). Quando há uma transação, o vínculo é
+/// feito direto em `Transaction.paidRecurringBillId` — não duplicado aqui.
 model RecurringBillPayment {
   id    String @id @default(cuid())
   year  Int
@@ -130,9 +135,6 @@ model RecurringBillPayment {
 
   recurringBillId String
   recurringBill   RecurringBill @relation(fields: [recurringBillId], references: [id], onDelete: Cascade)
-
-  transactionId String?
-  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
 
   confirmedAt DateTime @default(now())
 
