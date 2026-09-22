@@ -139,6 +139,7 @@ export const TransactionScalarFieldEnum = {
   accountId: 'accountId',
   creditCardId: 'creditCardId',
   paidCreditCardId: 'paidCreditCardId',
+  paidRecurringBillId: 'paidRecurringBillId',
   categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -167,7 +168,6 @@ export const RecurringBillPaymentScalarFieldEnum = {
   year: 'year',
   month: 'month',
   recurringBillId: 'recurringBillId',
-  transactionId: 'transactionId',
   confirmedAt: 'confirmedAt'
 } as const
 
