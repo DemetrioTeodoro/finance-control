@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { parseLocalDate } from "@/lib/date";
 
 type CreateRecurringBillInput = {
   userId: string;
@@ -32,6 +33,13 @@ type ConfirmPaymentInput = {
   transactionId?: string | null;
 };
 
+type UnconfirmPaymentInput = {
+  userId: string;
+  recurringBillId: string;
+  year: number;
+  month: number;
+};
+
 function isValidDay(day: number) {
   return Number.isInteger(day) && day >= 1 && day <= 31;
 }
@@ -62,6 +70,13 @@ export function getCurrentYearMonth() {
   return { year: now.getFullYear(), month: now.getMonth() };
 }
 
+function monthRange(year: number, month: number) {
+  return {
+    start: new Date(year, month, 1),
+    end: new Date(year, month + 1, 0, 23, 59, 59, 999),
+  };
+}
+
 /**
  * Data de vencimento do mês, com o dia limitado ao último dia do mês
  * (mesma ideia de clamping usada no ciclo de fatura do cartão), para não
@@ -71,6 +86,99 @@ export function resolveDueDate(dueDay: number, year: number, month: number) {
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
 
   return new Date(year, month, Math.min(dueDay, lastDayOfMonth));
+}
+
+export type RecurringBillPeriod =
+  | "3-months"
+  | "6-months"
+  | "12-months"
+  | "24-months"
+  | "custom";
+
+export function resolveRecurringBillPeriod(value?: string): RecurringBillPeriod {
+  if (
+    value === "3-months" ||
+    value === "6-months" ||
+    value === "12-months" ||
+    value === "24-months" ||
+    value === "custom"
+  ) {
+    return value;
+  }
+
+  return "6-months";
+}
+
+const CUSTOM_PERIOD_MAX_MONTHS = 60;
+
+/**
+ * Resolve a lista de meses (mais antigo → mais recente) a exibir no
+ * checklist, a partir do preset escolhido ou de um período personalizado
+ * (mesmo padrão de `resolveReportRange` em `src/services/report.ts`). No
+ * período personalizado, limita a `CUSTOM_PERIOD_MAX_MONTHS` (5 anos) pra
+ * não gerar uma tabela absurdamente larga.
+ */
+export function resolveRecurringBillMonths(
+  period: RecurringBillPeriod,
+  startDateParam?: string,
+  endDateParam?: string,
+): { year: number; month: number }[] {
+  const { year: currentYear, month: currentMonth } = getCurrentYearMonth();
+
+  if (period === "custom") {
+    const startDate = startDateParam
+      ? parseLocalDate(startDateParam)
+      : new Date(currentYear, currentMonth, 1);
+
+    const endDate = endDateParam
+      ? parseLocalDate(endDateParam)
+      : new Date(currentYear, currentMonth, 1);
+
+    const startTotal = startDate.getFullYear() * 12 + startDate.getMonth();
+    const endTotal = Math.max(
+      startTotal,
+      endDate.getFullYear() * 12 + endDate.getMonth(),
+    );
+    const clampedStart = Math.max(startTotal, endTotal - CUSTOM_PERIOD_MAX_MONTHS + 1);
+
+    return Array.from(
+      { length: endTotal - clampedStart + 1 },
+      (_, index) => {
+        const total = clampedStart + index;
+
+        return {
+          year: Math.floor(total / 12),
+          month: ((total % 12) + 12) % 12,
+        };
+      },
+    );
+  }
+
+  const monthsCount =
+    period === "24-months" ? 24 : period === "12-months" ? 12 : period === "3-months" ? 3 : 6;
+
+  return Array.from({ length: monthsCount }, (_, index) => {
+    const offset = monthsCount - 1 - index;
+    const date = new Date(currentYear, currentMonth - offset, 1);
+
+    return { year: date.getFullYear(), month: date.getMonth() };
+  });
+}
+
+export async function getRecurringBillOptions(userId: string) {
+  return prisma.recurringBill.findMany({
+    where: {
+      userId,
+      active: true,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 }
 
 export async function createRecurringBill(input: CreateRecurringBillInput) {
@@ -157,25 +265,29 @@ export async function deleteRecurringBill(input: DeleteRecurringBillInput) {
 }
 
 /**
- * Lista as contas fixas do usuário com o status de pagamento do mês
- * informado (padrão: os últimos `monthsCount` meses, mês atual incluso).
- * "Pago" cobre tanto a confirmação manual quanto o casamento automático
- * feito por `checkRecurringBillsForReminders`. O histórico existe para o
- * usuário conseguir enxergar (e corrigir) meses anteriores num só lugar,
- * em vez de só o mês corrente.
+ * Lista as contas fixas do usuário com o status de pagamento dos meses
+ * informados (mais antigo → mais recente — ver `resolveRecurringBillMonths`),
+ * para o usuário conseguir enxergar (e corrigir) meses anteriores num só
+ * lugar, em vez de só o mês corrente. "Pago" cobre duas fontes, não
+ * mutuamente exclusivas:
+ * - uma Transaction com `paidRecurringBillId` apontando pra essa conta,
+ *   com data dentro do mês (vínculo explícito, feito ao lançar a despesa);
+ * - um RecurringBillPayment (confirmação manual sem transação, ex.: pago
+ *   em dinheiro).
  */
 export async function getRecurringBillsWithHistory(
   userId: string,
-  monthsCount = 6,
+  months: { year: number; month: number }[],
 ) {
-  const { year: currentYear, month: currentMonth } = getCurrentYearMonth();
+  if (months.length === 0) {
+    return { months, bills: [] };
+  }
 
-  const months = Array.from({ length: monthsCount }, (_, index) => {
-    const offset = monthsCount - 1 - index;
-    const date = new Date(currentYear, currentMonth - offset, 1);
-
-    return { year: date.getFullYear(), month: date.getMonth() };
-  });
+  const periodStart = monthRange(months[0].year, months[0].month).start;
+  const periodEnd = monthRange(
+    months[months.length - 1].year,
+    months[months.length - 1].month,
+  ).end;
 
   const recurringBills = await prisma.recurringBill.findMany({
     where: {
@@ -196,15 +308,19 @@ export async function getRecurringBillsWithHistory(
             month: reference.month,
           })),
         },
-        include: {
-          transaction: {
-            select: {
-              id: true,
-              description: true,
-              amount: true,
-              date: true,
-            },
+      },
+      paidByTransactions: {
+        where: {
+          date: {
+            gte: periodStart,
+            lte: periodEnd,
           },
+        },
+        select: {
+          id: true,
+          description: true,
+          amount: true,
+          date: true,
         },
       },
     },
@@ -214,10 +330,17 @@ export async function getRecurringBillsWithHistory(
   });
 
   const bills = recurringBills.map((recurringBill) => {
-    const paymentByKey = new Map(
+    const manualPaymentByKey = new Map(
       recurringBill.payments.map((payment) => [
         `${payment.year}-${payment.month}`,
         payment,
+      ]),
+    );
+
+    const transactionByKey = new Map(
+      recurringBill.paidByTransactions.map((transaction) => [
+        `${transaction.date.getFullYear()}-${transaction.date.getMonth()}`,
+        transaction,
       ]),
     );
 
@@ -232,20 +355,20 @@ export async function getRecurringBillsWithHistory(
       active: recurringBill.active,
       category: recurringBill.category,
       history: months.map((reference) => {
-        const payment =
-          paymentByKey.get(`${reference.year}-${reference.month}`) ?? null;
+        const key = `${reference.year}-${reference.month}`;
+        const transaction = transactionByKey.get(key) ?? null;
+        const manualPayment = manualPaymentByKey.get(key) ?? null;
 
         return {
           year: reference.year,
           month: reference.month,
-          paid: payment !== null,
-          confirmedAutomatically: payment?.transactionId != null,
-          transaction: payment?.transaction
+          paid: transaction !== null || manualPayment !== null,
+          transaction: transaction
             ? {
-                id: payment.transaction.id,
-                description: payment.transaction.description,
-                amount: Number(payment.transaction.amount),
-                date: payment.transaction.date,
+                id: transaction.id,
+                description: transaction.description,
+                amount: Number(transaction.amount),
+                date: transaction.date,
               }
             : null,
         };
@@ -257,10 +380,11 @@ export async function getRecurringBillsWithHistory(
 }
 
 /**
- * Transações de despesa dos meses informados, para o usuário escolher qual
- * vincular ao confirmar manualmente o pagamento de uma conta fixa. Agrupado
- * por "year-month" para consulta rápida no lado do servidor (`page.tsx`),
- * sem precisar de uma query por célula do checklist.
+ * Transações de despesa dos meses informados, ainda sem vínculo com
+ * nenhuma conta fixa, para o usuário escolher qual vincular ao confirmar
+ * manualmente o pagamento pelo checklist. Agrupado por "year-month" para
+ * consulta rápida no lado do servidor (`page.tsx`), sem precisar de uma
+ * query por célula do checklist.
  */
 export async function getExpenseTransactionOptionsByMonth(
   userId: string,
@@ -270,22 +394,17 @@ export async function getExpenseTransactionOptionsByMonth(
     return {};
   }
 
-  const periodStart = new Date(months[0].year, months[0].month, 1);
-  const lastMonth = months[months.length - 1];
-  const periodEnd = new Date(
-    lastMonth.year,
-    lastMonth.month + 1,
-    0,
-    23,
-    59,
-    59,
-    999,
-  );
+  const periodStart = monthRange(months[0].year, months[0].month).start;
+  const periodEnd = monthRange(
+    months[months.length - 1].year,
+    months[months.length - 1].month,
+  ).end;
 
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
       type: "expense",
+      paidRecurringBillId: null,
       date: {
         gte: periodStart,
         lte: periodEnd,
@@ -325,31 +444,15 @@ export async function getExpenseTransactionOptionsByMonth(
   return byMonth;
 }
 
-async function findMatchingTransaction(
-  userId: string,
-  categoryId: string,
-  year: number,
-  month: number,
-) {
-  const periodStart = new Date(year, month, 1);
-  const periodEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
-
-  return prisma.transaction.findFirst({
-    where: {
-      userId,
-      categoryId,
-      type: "expense",
-      date: {
-        gte: periodStart,
-        lte: periodEnd,
-      },
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-}
-
+/**
+ * Confirma o pagamento de uma conta fixa num mês. Se `transactionId` for
+ * informado, o vínculo é feito direto na transação
+ * (`Transaction.paidRecurringBillId`, mesmo padrão de `paidCreditCardId`) —
+ * sem heurística automática por categoria, que já causou falso positivo
+ * (duas despesas na mesma categoria, nenhuma sendo o pagamento real). Sem
+ * transação, fica só a confirmação manual (`RecurringBillPayment`), pra
+ * casos pagos fora do fluxo rastreado (ex.: em dinheiro).
+ */
 export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
   const recurringBill = await prisma.recurringBill.findFirst({
     where: {
@@ -362,12 +465,10 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
     throw new Error("RECURRING_BILL_NOT_FOUND");
   }
 
-  const transactionId = input.transactionId ?? null;
-
-  if (transactionId) {
+  if (input.transactionId) {
     const transaction = await prisma.transaction.findFirst({
       where: {
-        id: transactionId,
+        id: input.transactionId,
         userId: input.userId,
       },
     });
@@ -375,6 +476,15 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
     if (!transaction) {
       throw new Error("TRANSACTION_NOT_FOUND");
     }
+
+    return prisma.transaction.update({
+      where: {
+        id: transaction.id,
+      },
+      data: {
+        paidRecurringBillId: recurringBill.id,
+      },
+    });
   }
 
   return prisma.recurringBillPayment.upsert({
@@ -389,16 +499,13 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
       recurringBillId: recurringBill.id,
       year: input.year,
       month: input.month,
-      transactionId,
     },
-    update: {
-      transactionId,
-    },
+    update: {},
   });
 }
 
 export async function unconfirmRecurringBillPayment(
-  input: ConfirmPaymentInput,
+  input: UnconfirmPaymentInput,
 ) {
   const recurringBill = await prisma.recurringBill.findFirst({
     where: {
@@ -410,6 +517,22 @@ export async function unconfirmRecurringBillPayment(
   if (!recurringBill) {
     throw new Error("RECURRING_BILL_NOT_FOUND");
   }
+
+  const { start, end } = monthRange(input.year, input.month);
+
+  await prisma.transaction.updateMany({
+    where: {
+      userId: input.userId,
+      paidRecurringBillId: recurringBill.id,
+      date: {
+        gte: start,
+        lte: end,
+      },
+    },
+    data: {
+      paidRecurringBillId: null,
+    },
+  });
 
   await prisma.recurringBillPayment.deleteMany({
     where: {
@@ -461,13 +584,15 @@ function buildReminderEmail(
 }
 
 /**
- * Ponto de entrada chamado pelo cron diário: para cada conta fixa ativa,
- * tenta casar automaticamente com uma transação existente no mês (mesma
- * categoria); se não achar e o vencimento for hoje ou amanhã, envia um
- * e-mail de lembrete.
+ * Ponto de entrada chamado pelo cron diário: para cada conta fixa ativa
+ * ainda sem confirmação de pagamento no mês, se o vencimento for hoje ou
+ * amanhã, envia um e-mail de lembrete. Não faz nenhum casamento automático
+ * — a confirmação (com ou sem transação vinculada) é sempre uma ação
+ * explícita do usuário.
  */
 export async function checkRecurringBillsForReminders() {
   const { year, month } = getCurrentYearMonth();
+  const { start, end } = monthRange(year, month);
 
   const today = new Date();
   const todayDay = today.getDate();
@@ -493,35 +618,27 @@ export async function checkRecurringBillsForReminders() {
         },
         take: 1,
       },
+      paidByTransactions: {
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
+        },
+        take: 1,
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
   const remindersSent: string[] = [];
 
   for (const bill of recurringBills) {
-    let payment = bill.payments[0] ?? null;
+    const isPaid = bill.payments.length > 0 || bill.paidByTransactions.length > 0;
 
-    if (!payment && bill.categoryId) {
-      const matchingTransaction = await findMatchingTransaction(
-        bill.userId,
-        bill.categoryId,
-        year,
-        month,
-      );
-
-      if (matchingTransaction) {
-        payment = await prisma.recurringBillPayment.create({
-          data: {
-            recurringBillId: bill.id,
-            year,
-            month,
-            transactionId: matchingTransaction.id,
-          },
-        });
-      }
-    }
-
-    if (payment) {
+    if (isPaid) {
       continue;
     }
 
