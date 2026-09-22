@@ -49,6 +49,8 @@ export type Transaction = Prisma.TransactionModel
 export type RecurringBill = Prisma.RecurringBillModel
 /**
  * Model RecurringBillPayment
- * 
+ * Confirmação manual de pagamento SEM transação vinculada (ex.: pago em
+ * dinheiro, fora do fluxo rastreado). Quando há uma transação, o vínculo é
+ * feito direto em `Transaction.paidRecurringBillId` — não duplicado aqui.
  */
 export type RecurringBillPayment = Prisma.RecurringBillPaymentModel
