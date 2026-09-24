@@ -2,12 +2,15 @@ import { auth } from "@/auth";
 import {
   getRecurringBillsWithHistory,
   getExpenseTransactionOptionsByMonth,
+  resolveRecurringBillPeriod,
+  resolveRecurringBillMonths,
 } from "@/services/recurring-bill";
 import { getCategoryOptions } from "@/services/category";
 import { RecurringBillForm } from "./recurring-bill-form";
 import { RecurringBillEditButton } from "./recurring-bill-edit-button";
 import { RecurringBillDeleteButton } from "./recurring-bill-delete-button";
 import { RecurringBillMonthCell } from "./recurring-bill-month-cell";
+import { RecurringBillPeriodFilter } from "./recurring-bill-period-filter";
 import { SensitiveValue } from "@/components/sensitive-value";
 import {
   Table,
@@ -19,8 +22,6 @@ import {
 } from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
-
-const MONTHS_COUNT = 6;
 
 const MONTH_NAMES = [
   "jan",
@@ -46,7 +47,21 @@ function monthLabel(year: number, month: number) {
   return `${MONTH_NAMES[month]}/${String(year).slice(-2)}`;
 }
 
-export default async function RecurringBillsPage() {
+function toIsoDate(year: number, month: number) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-01`;
+}
+
+type RecurringBillsPageProps = {
+  searchParams: Promise<{
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
+};
+
+export default async function RecurringBillsPage({
+  searchParams,
+}: RecurringBillsPageProps) {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -55,8 +70,16 @@ export default async function RecurringBillsPage() {
 
   const userId = session.user.id;
 
-  const [{ months, bills }, categories] = await Promise.all([
-    getRecurringBillsWithHistory(userId, MONTHS_COUNT),
+  const params = await searchParams;
+  const period = resolveRecurringBillPeriod(params.period);
+  const months = resolveRecurringBillMonths(
+    period,
+    params.startDate,
+    params.endDate,
+  );
+
+  const [{ bills }, categories] = await Promise.all([
+    getRecurringBillsWithHistory(userId, months),
     getCategoryOptions(userId),
   ]);
 
@@ -65,20 +88,32 @@ export default async function RecurringBillsPage() {
     months,
   );
 
+  const defaultStartDate =
+    params.startDate ?? toIsoDate(months[0].year, months[0].month);
+  const defaultEndDate =
+    params.endDate ??
+    toIsoDate(months[months.length - 1].year, months[months.length - 1].month);
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">Contas fixas</h1>
 
           <p className="text-muted-foreground">
-            Checklist dos últimos {MONTHS_COUNT} meses — veja de uma vez se as
-            contas fixas foram pagas, inclusive em meses anteriores
+            Checklist por período — veja de uma vez se as contas fixas foram
+            pagas, inclusive em meses anteriores
           </p>
         </div>
 
         <RecurringBillForm categories={categories} />
       </div>
+
+      <RecurringBillPeriodFilter
+        period={period}
+        defaultStartDate={defaultStartDate}
+        defaultEndDate={defaultEndDate}
+      />
 
       {bills.length === 0 ? (
         <div className="rounded-lg border border-dashed p-10 text-center">
