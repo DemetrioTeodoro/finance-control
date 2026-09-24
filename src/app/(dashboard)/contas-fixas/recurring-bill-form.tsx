@@ -57,7 +57,9 @@ export function RecurringBillForm({ categories }: RecurringBillFormProps) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>+ Nova conta fixa</Button>
+      <Button size="lg" onClick={() => setOpen(true)}>
+        + Nova conta fixa
+      </Button>
 
       <Dialog
         open={open}
@@ -121,8 +123,9 @@ export function RecurringBillForm({ categories }: RecurringBillFormProps) {
           </select>
 
           <p className="text-xs text-muted-foreground">
-            Se a categoria escolhida for usada em uma transação de despesa no
-            mês, a conta é marcada como paga automaticamente.
+            A categoria é só para organização. Para marcar como paga, vincule
+            a transação correspondente ao lançá-la em Transações (selecione
+            esta conta fixa no formulário) ou confirme direto no checklist.
           </p>
 
           <DialogFooter>
