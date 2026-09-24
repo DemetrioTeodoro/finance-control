@@ -5,6 +5,7 @@ import {
   getTransactions,
 } from "@/services/transaction";
 import { getCreditCardOptions } from "@/services/credit-card";
+import { getRecurringBillOptions } from "@/services/recurring-bill";
 import { parseLocalDate } from "@/lib/date";
 import { TransactionForm } from "./transaction-form";
 import { TransactionItem } from "./transaction-item";
@@ -59,19 +60,21 @@ export default async function TransactionsPage({
       params.endDate,
   );
 
-  const [transactions, accounts, categories, creditCards] = await Promise.all([
-    getTransactions(userId, {
-      accountId,
-      categoryId,
-      creditCardId,
-      type,
-      startDate,
-      endDate,
-    }),
-    getAccountOptions(userId),
-    getCategoryOptions(userId),
-    getCreditCardOptions(userId),
-  ]);
+  const [transactions, accounts, categories, creditCards, recurringBills] =
+    await Promise.all([
+      getTransactions(userId, {
+        accountId,
+        categoryId,
+        creditCardId,
+        type,
+        startDate,
+        endDate,
+      }),
+      getAccountOptions(userId),
+      getCategoryOptions(userId),
+      getCreditCardOptions(userId),
+      getRecurringBillOptions(userId),
+    ]);
 
   return (
     <div className="space-y-6">
@@ -88,6 +91,7 @@ export default async function TransactionsPage({
           accounts={accounts}
           categories={categories}
           creditCards={creditCards}
+          recurringBills={recurringBills}
         />
       </div>
 
@@ -131,6 +135,7 @@ export default async function TransactionsPage({
               accounts={accounts}
               categories={categories}
               creditCards={creditCards}
+              recurringBills={recurringBills}
             />
           ))}
         </div>
