@@ -23,16 +23,23 @@ type CreditCard = {
   name: string;
 };
 
+type RecurringBill = {
+  id: string;
+  name: string;
+};
+
 type TransactionFormProps = {
   accounts: Account[];
   categories: Category[];
   creditCards: CreditCard[];
+  recurringBills: RecurringBill[];
 };
 
 export function TransactionForm({
   accounts,
   categories,
   creditCards,
+  recurringBills,
 }: TransactionFormProps) {
   const router = useRouter();
 
@@ -141,6 +148,25 @@ export function TransactionForm({
               {creditCards.map((creditCard) => (
                 <option key={creditCard.id} value={creditCard.id}>
                   Sim, fatura do {creditCard.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm text-muted-foreground">
+              Esta despesa é o pagamento de uma conta fixa?
+            </label>
+
+            <select
+              name="paidRecurringBillId"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Não</option>
+
+              {recurringBills.map((recurringBill) => (
+                <option key={recurringBill.id} value={recurringBill.id}>
+                  Sim, {recurringBill.name}
                 </option>
               ))}
             </select>
