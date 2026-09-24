@@ -26,6 +26,11 @@ type CreditCard = {
   name: string;
 };
 
+type RecurringBill = {
+  id: string;
+  name: string;
+};
+
 type Transaction = {
   id: string;
   description: string;
@@ -36,6 +41,7 @@ type Transaction = {
   categoryId: string | null;
   creditCardId: string | null;
   paidCreditCardId: string | null;
+  paidRecurringBillId: string | null;
   account: {
     id: string;
     name: string;
@@ -53,6 +59,10 @@ type Transaction = {
     id: string;
     name: string;
   } | null;
+  paidRecurringBill: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 type TransactionItemProps = {
@@ -60,6 +70,7 @@ type TransactionItemProps = {
   accounts: Account[];
   categories: Category[];
   creditCards: CreditCard[];
+  recurringBills: RecurringBill[];
 };
 
 export function TransactionItem({
@@ -67,6 +78,7 @@ export function TransactionItem({
   accounts,
   categories,
   creditCards,
+  recurringBills,
 }: TransactionItemProps) {
   const router = useRouter();
 
@@ -118,6 +130,12 @@ export function TransactionItem({
             {transaction.paidCreditCard && (
               <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">
                 Pagamento de fatura · {transaction.paidCreditCard.name}
+              </span>
+            )}
+
+            {transaction.paidRecurringBill && (
+              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">
+                Conta fixa · {transaction.paidRecurringBill.name}
               </span>
             )}
           </p>
@@ -184,6 +202,7 @@ export function TransactionItem({
           accounts={accounts}
           categories={categories}
           creditCards={creditCards}
+          recurringBills={recurringBills}
           onClose={() => setEditing(false)}
         />
       )}
