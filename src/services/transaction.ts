@@ -11,6 +11,7 @@ type CreateTransactionInput = {
   categoryId?: string | null;
   creditCardId?: string | null;
   paidCreditCardId?: string | null;
+  paidRecurringBillId?: string | null;
 };
 
 type UpdateTransactionInput = {
@@ -24,6 +25,7 @@ type UpdateTransactionInput = {
   categoryId?: string | null;
   creditCardId?: string | null;
   paidCreditCardId?: string | null;
+  paidRecurringBillId?: string | null;
 };
 
 type BulkCreditCardTransactionItem = {
@@ -102,6 +104,12 @@ export async function getTransactions(
         },
       },
       paidCreditCard: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      paidRecurringBill: {
         select: {
           id: true,
           name: true,
@@ -231,6 +239,26 @@ export async function createTransaction(input: CreateTransactionInput) {
       }
     }
 
+    if (input.paidRecurringBillId) {
+      if (input.type !== "expense") {
+        throw new Error("INVALID_PAID_RECURRING_BILL_TYPE");
+      }
+
+      const paidRecurringBill = await tx.recurringBill.findFirst({
+        where: {
+          id: input.paidRecurringBillId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!paidRecurringBill) {
+        throw new Error("RECURRING_BILL_NOT_FOUND");
+      }
+    }
+
     if (account) {
       const newBalance =
         input.type === "income"
@@ -258,6 +286,7 @@ export async function createTransaction(input: CreateTransactionInput) {
         categoryId: input.categoryId ?? null,
         creditCardId: input.creditCardId ?? null,
         paidCreditCardId: input.paidCreditCardId ?? null,
+        paidRecurringBillId: input.paidRecurringBillId ?? null,
       },
     });
   });
@@ -400,6 +429,29 @@ export async function updateTransaction(input: UpdateTransactionInput) {
     }
 
     /*
+     * 3.7. Valida a conta fixa cujo pagamento está sendo vinculado
+     */
+    if (input.paidRecurringBillId) {
+      if (input.type !== "expense") {
+        throw new Error("INVALID_PAID_RECURRING_BILL_TYPE");
+      }
+
+      const paidRecurringBill = await tx.recurringBill.findFirst({
+        where: {
+          id: input.paidRecurringBillId,
+          userId: input.userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!paidRecurringBill) {
+        throw new Error("RECURRING_BILL_NOT_FOUND");
+      }
+    }
+
+    /*
      * 4. Aplica o impacto da nova transação
      */
     if (newAccount) {
@@ -434,6 +486,7 @@ export async function updateTransaction(input: UpdateTransactionInput) {
         categoryId: input.categoryId ?? null,
         creditCardId: input.creditCardId ?? null,
         paidCreditCardId: input.paidCreditCardId ?? null,
+        paidRecurringBillId: input.paidRecurringBillId ?? null,
       },
     });
   });
