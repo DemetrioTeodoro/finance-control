@@ -27,6 +27,8 @@ export async function createTransaction(formData: FormData) {
   const creditCardId = formData.get("creditCardId")?.toString() || null;
   const paidCreditCardId =
     formData.get("paidCreditCardId")?.toString() || null;
+  const paidRecurringBillId =
+    formData.get("paidRecurringBillId")?.toString() || null;
 
   if (!description || !amount || !type || !date) {
     return {
@@ -67,6 +69,7 @@ export async function createTransaction(formData: FormData) {
       categoryId,
       creditCardId,
       paidCreditCardId,
+      paidRecurringBillId,
     });
 
     return {
@@ -95,6 +98,18 @@ export async function createTransaction(formData: FormData) {
       if (error.message === "INVALID_PAID_CREDIT_CARD_TYPE") {
         return {
           error: "O pagamento de fatura precisa ser uma despesa.",
+        };
+      }
+
+      if (error.message === "RECURRING_BILL_NOT_FOUND") {
+        return {
+          error: "Conta fixa não encontrada.",
+        };
+      }
+
+      if (error.message === "INVALID_PAID_RECURRING_BILL_TYPE") {
+        return {
+          error: "O pagamento de conta fixa precisa ser uma despesa.",
         };
       }
 
@@ -139,6 +154,8 @@ export async function updateTransaction(formData: FormData) {
   const creditCardId = formData.get("creditCardId")?.toString() || null;
   const paidCreditCardId =
     formData.get("paidCreditCardId")?.toString() || null;
+  const paidRecurringBillId =
+    formData.get("paidRecurringBillId")?.toString() || null;
 
   if (!transactionId) {
     return {
@@ -186,6 +203,7 @@ export async function updateTransaction(formData: FormData) {
       categoryId,
       creditCardId,
       paidCreditCardId,
+      paidRecurringBillId,
     });
 
     return {
@@ -220,6 +238,18 @@ export async function updateTransaction(formData: FormData) {
       if (error.message === "INVALID_PAID_CREDIT_CARD_TYPE") {
         return {
           error: "O pagamento de fatura precisa ser uma despesa.",
+        };
+      }
+
+      if (error.message === "RECURRING_BILL_NOT_FOUND") {
+        return {
+          error: "Conta fixa não encontrada.",
+        };
+      }
+
+      if (error.message === "INVALID_PAID_RECURRING_BILL_TYPE") {
+        return {
+          error: "O pagamento de conta fixa precisa ser uma despesa.",
         };
       }
 
