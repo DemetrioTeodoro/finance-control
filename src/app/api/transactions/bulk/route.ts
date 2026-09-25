@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { Prisma } from "@/generated/prisma/client";
 import { parseLocalDate } from "@/lib/date";
 import {
   bulkCreateAccountTransactions,
@@ -10,6 +11,7 @@ type BulkTransactionPayloadItem = {
   valor?: unknown;
   tipo?: unknown;
   data?: unknown;
+  idExterno?: unknown;
 };
 
 type BulkTransactionPayload = {
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
     amount: number;
     type: "income" | "expense";
     date: Date;
+    externalId: string | null;
   }[];
 
   try {
@@ -75,7 +78,8 @@ export async function POST(request: Request) {
         typeof item.descricao !== "string" ||
         typeof item.valor !== "number" ||
         (item.tipo !== "income" && item.tipo !== "expense") ||
-        typeof item.data !== "string"
+        typeof item.data !== "string" ||
+        (item.idExterno != null && typeof item.idExterno !== "string")
       ) {
         throw new Error("INVALID_TRANSACTION_ITEM");
       }
@@ -85,6 +89,7 @@ export async function POST(request: Request) {
         amount: item.valor,
         type: item.tipo,
         date: parseLocalDate(item.data),
+        externalId: item.idExterno ?? null,
       };
     });
   } catch {
@@ -107,8 +112,20 @@ export async function POST(request: Request) {
           items,
         });
 
-    return Response.json({ count: result.count });
+    return Response.json({ count: result.count, skipped: result.skipped });
   } catch (error) {
+    // Índice único de externalId violado: outro import do mesmo arquivo
+    // gravou as transações entre a checagem de duplicatas e o insert.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return Response.json(
+        { error: "Essas transações já estão sendo importadas." },
+        { status: 409 },
+      );
+    }
+
     if (error instanceof Error) {
       if (error.message === "CREDIT_CARD_NOT_FOUND") {
         return Response.json(
