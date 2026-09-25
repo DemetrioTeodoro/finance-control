@@ -30,6 +30,7 @@ type AccountStatementImportDialogProps = {
 type ProcessarExtratoSuccess = {
   total_transacoes: number;
   enviadas_com_sucesso: number;
+  ignoradas_duplicadas: number;
   mensagem: string;
 };
 
