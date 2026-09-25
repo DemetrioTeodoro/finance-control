@@ -101,8 +101,17 @@ model Transaction {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  /// ID da transação no arquivo de origem (FITID do OFX), usado para não
+  /// importar a mesma transação duas vezes quando o extrato/fatura é
+  /// importado mais de uma vez com períodos sobrepostos. Nulo para
+  /// transações criadas manualmente ou vindas de OFX sem FITID.
+  externalId String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([accountId, externalId])
+  @@unique([creditCardId, externalId])
 }
 
 model RecurringBill {
