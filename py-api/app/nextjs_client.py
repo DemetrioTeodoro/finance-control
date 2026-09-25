@@ -16,7 +16,8 @@ async def enviar_para_nextjs(
     resource_field: str,
     resource_id: str,
     headers_originais: dict[str, str],
-) -> int:
+) -> tuple[int, int]:
+    """Retorna (quantidade criada, quantidade ignorada por já ter sido importada)."""
     headers_repassados = {
         nome: valor
         for nome, valor in headers_originais.items()
@@ -52,6 +53,12 @@ async def enviar_para_nextjs(
             detail="Sessão inválida ou expirada.",
         )
 
+    if response.status_code == status.HTTP_409_CONFLICT:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Essas transações já estão sendo importadas.",
+        )
+
     if response.status_code >= 400:
         logger.error(
             "Next.js recusou o lote de transações (status=%s): %s",
@@ -64,4 +71,4 @@ async def enviar_para_nextjs(
         )
 
     corpo = response.json()
-    return int(corpo.get("count", len(transacoes)))
+    return int(corpo.get("count", len(transacoes))), int(corpo.get("skipped", 0))
