@@ -54,12 +54,17 @@ def extrair_transacoes(conteudo_ofx: bytes) -> list[dict[str, Any]]:
 
             descricao = (txn.payee or txn.memo or "Transação sem descrição").strip()
 
+            # FITID: ID único da transação no banco. O Next.js usa para não
+            # duplicar transações quando o mesmo período é importado de novo.
+            id_externo = (getattr(txn, "id", None) or "").strip() or None
+
             transacoes.append(
                 {
                     "descricao": descricao,
                     "valor": valor,
                     "tipo": tipo,
                     "data": data_txn.strftime("%Y-%m-%d"),
+                    "idExterno": id_externo,
                 }
             )
 
