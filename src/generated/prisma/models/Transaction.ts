@@ -46,6 +46,7 @@ export type TransactionMinAggregateOutputType = {
   paidCreditCardId: string | null
   paidRecurringBillId: string | null
   categoryId: string | null
+  externalId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +63,7 @@ export type TransactionMaxAggregateOutputType = {
   paidCreditCardId: string | null
   paidRecurringBillId: string | null
   categoryId: string | null
+  externalId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +80,7 @@ export type TransactionCountAggregateOutputType = {
   paidCreditCardId: number
   paidRecurringBillId: number
   categoryId: number
+  externalId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -104,6 +107,7 @@ export type TransactionMinAggregateInputType = {
   paidCreditCardId?: true
   paidRecurringBillId?: true
   categoryId?: true
+  externalId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,6 +124,7 @@ export type TransactionMaxAggregateInputType = {
   paidCreditCardId?: true
   paidRecurringBillId?: true
   categoryId?: true
+  externalId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -136,6 +141,7 @@ export type TransactionCountAggregateInputType = {
   paidCreditCardId?: true
   paidRecurringBillId?: true
   categoryId?: true
+  externalId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -239,6 +245,7 @@ export type TransactionGroupByOutputType = {
   paidCreditCardId: string | null
   paidRecurringBillId: string | null
   categoryId: string | null
+  externalId: string | null
   createdAt: Date
   updatedAt: Date
   _count: TransactionCountAggregateOutputType | null
@@ -278,6 +285,7 @@ export type TransactionWhereInput = {
   paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   paidRecurringBillId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  externalId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -300,6 +308,7 @@ export type TransactionOrderByWithRelationInput = {
   paidCreditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
   paidRecurringBillId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -312,6 +321,8 @@ export type TransactionOrderByWithRelationInput = {
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  accountId_externalId?: Prisma.TransactionAccountIdExternalIdCompoundUniqueInput
+  creditCardId_externalId?: Prisma.TransactionCreditCardIdExternalIdCompoundUniqueInput
   AND?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
   OR?: Prisma.TransactionWhereInput[]
   NOT?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
@@ -325,6 +336,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   paidRecurringBillId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  externalId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -333,7 +345,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   paidCreditCard?: Prisma.XOR<Prisma.CreditCardNullableScalarRelationFilter, Prisma.CreditCardWhereInput> | null
   paidRecurringBill?: Prisma.XOR<Prisma.RecurringBillNullableScalarRelationFilter, Prisma.RecurringBillWhereInput> | null
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
-}, "id">
+}, "id" | "accountId_externalId" | "creditCardId_externalId">
 
 export type TransactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -347,6 +359,7 @@ export type TransactionOrderByWithAggregationInput = {
   paidCreditCardId?: Prisma.SortOrderInput | Prisma.SortOrder
   paidRecurringBillId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TransactionCountOrderByAggregateInput
@@ -371,6 +384,7 @@ export type TransactionScalarWhereWithAggregatesInput = {
   paidCreditCardId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   paidRecurringBillId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  externalId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
 }
@@ -381,6 +395,7 @@ export type TransactionCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -403,6 +418,7 @@ export type TransactionUncheckedCreateInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -413,6 +429,7 @@ export type TransactionUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -435,6 +452,7 @@ export type TransactionUncheckedUpdateInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -451,6 +469,7 @@ export type TransactionCreateManyInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -461,6 +480,7 @@ export type TransactionUpdateManyMutationInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -477,6 +497,7 @@ export type TransactionUncheckedUpdateManyInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -491,6 +512,16 @@ export type TransactionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type TransactionAccountIdExternalIdCompoundUniqueInput = {
+  accountId: string
+  externalId: string
+}
+
+export type TransactionCreditCardIdExternalIdCompoundUniqueInput = {
+  creditCardId: string
+  externalId: string
+}
+
 export type TransactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -503,6 +534,7 @@ export type TransactionCountOrderByAggregateInput = {
   paidCreditCardId?: Prisma.SortOrder
   paidRecurringBillId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -523,6 +555,7 @@ export type TransactionMaxOrderByAggregateInput = {
   paidCreditCardId?: Prisma.SortOrder
   paidRecurringBillId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -539,6 +572,7 @@ export type TransactionMinOrderByAggregateInput = {
   paidCreditCardId?: Prisma.SortOrder
   paidRecurringBillId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -805,6 +839,7 @@ export type TransactionCreateWithoutUserInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   account?: Prisma.AccountCreateNestedOneWithoutTransactionsInput
@@ -825,6 +860,7 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -870,6 +906,7 @@ export type TransactionScalarWhereInput = {
   paidCreditCardId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   paidRecurringBillId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  externalId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
 }
@@ -880,6 +917,7 @@ export type TransactionCreateWithoutAccountInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -900,6 +938,7 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -936,6 +975,7 @@ export type TransactionCreateWithoutCreditCardInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -956,6 +996,7 @@ export type TransactionUncheckedCreateWithoutCreditCardInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -976,6 +1017,7 @@ export type TransactionCreateWithoutPaidCreditCardInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -996,6 +1038,7 @@ export type TransactionUncheckedCreateWithoutPaidCreditCardInput = {
   creditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1048,6 +1091,7 @@ export type TransactionCreateWithoutCategoryInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -1068,6 +1112,7 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   creditCardId?: string | null
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1104,6 +1149,7 @@ export type TransactionCreateWithoutPaidRecurringBillInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   type: string
   date: Date | string
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -1124,6 +1170,7 @@ export type TransactionUncheckedCreateWithoutPaidRecurringBillInput = {
   creditCardId?: string | null
   paidCreditCardId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1165,6 +1212,7 @@ export type TransactionCreateManyUserInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1175,6 +1223,7 @@ export type TransactionUpdateWithoutUserInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneWithoutTransactionsNestedInput
@@ -1195,6 +1244,7 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1210,6 +1260,7 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1225,6 +1276,7 @@ export type TransactionCreateManyAccountInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1235,6 +1287,7 @@ export type TransactionUpdateWithoutAccountInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1255,6 +1308,7 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1270,6 +1324,7 @@ export type TransactionUncheckedUpdateManyWithoutAccountInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1285,6 +1340,7 @@ export type TransactionCreateManyCreditCardInput = {
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1300,6 +1356,7 @@ export type TransactionCreateManyPaidCreditCardInput = {
   creditCardId?: string | null
   paidRecurringBillId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1310,6 +1367,7 @@ export type TransactionUpdateWithoutCreditCardInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1330,6 +1388,7 @@ export type TransactionUncheckedUpdateWithoutCreditCardInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1345,6 +1404,7 @@ export type TransactionUncheckedUpdateManyWithoutCreditCardInput = {
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1355,6 +1415,7 @@ export type TransactionUpdateWithoutPaidCreditCardInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1375,6 +1436,7 @@ export type TransactionUncheckedUpdateWithoutPaidCreditCardInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1390,6 +1452,7 @@ export type TransactionUncheckedUpdateManyWithoutPaidCreditCardInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1405,6 +1468,7 @@ export type TransactionCreateManyCategoryInput = {
   creditCardId?: string | null
   paidCreditCardId?: string | null
   paidRecurringBillId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1415,6 +1479,7 @@ export type TransactionUpdateWithoutCategoryInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1435,6 +1500,7 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1450,6 +1516,7 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidRecurringBillId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1465,6 +1532,7 @@ export type TransactionCreateManyPaidRecurringBillInput = {
   creditCardId?: string | null
   paidCreditCardId?: string | null
   categoryId?: string | null
+  externalId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1475,6 +1543,7 @@ export type TransactionUpdateWithoutPaidRecurringBillInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1495,6 +1564,7 @@ export type TransactionUncheckedUpdateWithoutPaidRecurringBillInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1510,6 +1580,7 @@ export type TransactionUncheckedUpdateManyWithoutPaidRecurringBillInput = {
   creditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidCreditCardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1528,6 +1599,7 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   paidCreditCardId?: boolean
   paidRecurringBillId?: boolean
   categoryId?: boolean
+  externalId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1550,6 +1622,7 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   paidCreditCardId?: boolean
   paidRecurringBillId?: boolean
   categoryId?: boolean
+  externalId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1572,6 +1645,7 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   paidCreditCardId?: boolean
   paidRecurringBillId?: boolean
   categoryId?: boolean
+  externalId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1594,11 +1668,12 @@ export type TransactionSelectScalar = {
   paidCreditCardId?: boolean
   paidRecurringBillId?: boolean
   categoryId?: boolean
+  externalId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "amount" | "type" | "date" | "userId" | "accountId" | "creditCardId" | "paidCreditCardId" | "paidRecurringBillId" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "amount" | "type" | "date" | "userId" | "accountId" | "creditCardId" | "paidCreditCardId" | "paidRecurringBillId" | "categoryId" | "externalId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   account?: boolean | Prisma.Transaction$accountArgs<ExtArgs>
@@ -1646,6 +1721,13 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     paidCreditCardId: string | null
     paidRecurringBillId: string | null
     categoryId: string | null
+    /**
+     * ID da transação no arquivo de origem (FITID do OFX), usado para não
+     * importar a mesma transação duas vezes quando o extrato/fatura é
+     * importado mais de uma vez com períodos sobrepostos. Nulo para
+     * transações criadas manualmente ou vindas de OFX sem FITID.
+     */
+    externalId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["transaction"]>
@@ -2088,6 +2170,7 @@ export interface TransactionFieldRefs {
   readonly paidCreditCardId: Prisma.FieldRef<"Transaction", 'String'>
   readonly paidRecurringBillId: Prisma.FieldRef<"Transaction", 'String'>
   readonly categoryId: Prisma.FieldRef<"Transaction", 'String'>
+  readonly externalId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
 }
