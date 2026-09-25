@@ -33,6 +33,7 @@ type BulkCreditCardTransactionItem = {
   amount: number;
   type: "income" | "expense";
   date: Date;
+  externalId?: string | null;
 };
 
 type BulkCreateCreditCardTransactionsInput = {
@@ -46,6 +47,7 @@ type BulkAccountTransactionItem = {
   amount: number;
   type: "income" | "expense";
   date: Date;
+  externalId?: string | null;
 };
 
 type BulkCreateAccountTransactionsInput = {
@@ -492,6 +494,36 @@ export async function updateTransaction(input: UpdateTransactionInput) {
   });
 }
 
+function collectExternalIds(items: { externalId: string | null }[]) {
+  return items.flatMap((item) => (item.externalId ? [item.externalId] : []));
+}
+
+/**
+ * Remove do lote as transações cujo `externalId` (FITID do OFX) já existe
+ * no recurso de destino, ou que aparecem repetidas no próprio lote.
+ * Transações sem `externalId` são sempre mantidas, pois não há como saber
+ * se já foram importadas.
+ */
+function skipAlreadyImported<T extends { externalId: string | null }>(
+  items: T[],
+  existing: { externalId: string | null }[],
+) {
+  const seen = new Set(existing.map((item) => item.externalId));
+
+  return items.filter((item) => {
+    if (!item.externalId) {
+      return true;
+    }
+
+    if (seen.has(item.externalId)) {
+      return false;
+    }
+
+    seen.add(item.externalId);
+    return true;
+  });
+}
+
 export async function bulkCreateCreditCardTransactions(
   input: BulkCreateCreditCardTransactionsInput,
 ) {
@@ -525,6 +557,7 @@ export async function bulkCreateCreditCardTransactions(
       date: item.date,
       userId: input.userId,
       creditCardId: input.creditCardId,
+      externalId: item.externalId?.trim() || null,
     };
   });
 
@@ -543,9 +576,21 @@ export async function bulkCreateCreditCardTransactions(
       throw new Error("CREDIT_CARD_NOT_FOUND");
     }
 
-    return tx.transaction.createMany({
-      data,
+    const existing = await tx.transaction.findMany({
+      where: {
+        creditCardId: creditCard.id,
+        externalId: { in: collectExternalIds(data) },
+      },
+      select: { externalId: true },
     });
+
+    const newData = skipAlreadyImported(data, existing);
+
+    const { count } = await tx.transaction.createMany({
+      data: newData,
+    });
+
+    return { count, skipped: data.length - newData.length };
   });
 }
 
@@ -555,8 +600,6 @@ export async function bulkCreateAccountTransactions(
   if (input.items.length === 0) {
     throw new Error("EMPTY_TRANSACTION_LIST");
   }
-
-  let balanceDelta = new Prisma.Decimal(0);
 
   const data = input.items.map((item) => {
     const description = item.description.trim();
@@ -577,19 +620,14 @@ export async function bulkCreateAccountTransactions(
       throw new Error("INVALID_DATE");
     }
 
-    const amount = new Prisma.Decimal(item.amount);
-    balanceDelta =
-      item.type === "income"
-        ? balanceDelta.add(amount)
-        : balanceDelta.sub(amount);
-
     return {
       description,
-      amount,
+      amount: new Prisma.Decimal(item.amount),
       type: item.type,
       date: item.date,
       userId: input.userId,
       accountId: input.accountId,
+      externalId: item.externalId?.trim() || null,
     };
   });
 
@@ -605,14 +643,36 @@ export async function bulkCreateAccountTransactions(
       throw new Error("ACCOUNT_NOT_FOUND");
     }
 
+    const existing = await tx.transaction.findMany({
+      where: {
+        accountId: account.id,
+        externalId: { in: collectExternalIds(data) },
+      },
+      select: { externalId: true },
+    });
+
+    const newData = skipAlreadyImported(data, existing);
+
+    // O saldo só recebe o impacto das transações realmente criadas —
+    // as já importadas antes já foram aplicadas ao saldo naquela vez.
+    const balanceDelta = newData.reduce(
+      (delta, item) =>
+        item.type === "income"
+          ? delta.add(item.amount)
+          : delta.sub(item.amount),
+      new Prisma.Decimal(0),
+    );
+
     await tx.account.update({
       where: { id: account.id },
       data: { balance: account.balance.add(balanceDelta) },
     });
 
-    return tx.transaction.createMany({
-      data,
+    const { count } = await tx.transaction.createMany({
+      data: newData,
     });
+
+    return { count, skipped: data.length - newData.length };
   });
 }
 
