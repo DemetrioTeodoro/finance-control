@@ -30,6 +30,7 @@ type CreditCardInvoiceImportDialogProps = {
 type ProcessarFaturaSuccess = {
   total_transacoes: number;
   enviadas_com_sucesso: number;
+  ignoradas_duplicadas: number;
   mensagem: string;
 };
 
