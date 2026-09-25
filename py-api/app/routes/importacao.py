@@ -21,6 +21,10 @@ sem checar propriedade" do AGENTS.md §8.
 conta, então não dispara regra de saldo — AGENTS.md §12/§15).
 `processar_extrato` vincula a um `accountId` — nesse caso o Next.js
 atualiza o saldo da conta (AGENTS.md §15/§18).
+
+O mesmo arquivo (ou períodos sobrepostos) pode ser importado várias vezes:
+cada transação leva o FITID do OFX (`idExterno`) e o Next.js ignora as que
+já existem no cartão/conta, sem reaplicá-las ao saldo.
 """
 
 from __future__ import annotations
@@ -32,6 +36,16 @@ from ..ofx import extrair_transacoes
 from ..schemas import ProcessarExtratoResponse
 
 router = APIRouter()
+
+
+def montar_mensagem(criadas: int, ignoradas: int) -> str:
+    if criadas == 0:
+        return "Nenhuma transação nova — todas já tinham sido importadas."
+
+    mensagem = f"{criadas} transações novas importadas."
+    if ignoradas:
+        mensagem += f" {ignoradas} já existiam e foram ignoradas."
+    return mensagem
 
 
 @router.post(
@@ -65,14 +79,15 @@ async def processar_fatura(
 
     transacoes = extrair_transacoes(conteudo)
 
-    total_enviado = await enviar_para_nextjs(
+    total_enviado, ignoradas = await enviar_para_nextjs(
         transacoes, "creditCardId", credit_card_id, dict(request.headers)
     )
 
     return ProcessarExtratoResponse(
         total_transacoes=len(transacoes),
         enviadas_com_sucesso=total_enviado,
-        mensagem=f"{total_enviado} de {len(transacoes)} transações da fatura foram salvas com sucesso.",
+        ignoradas_duplicadas=ignoradas,
+        mensagem=montar_mensagem(total_enviado, ignoradas),
     )
 
 
@@ -107,12 +122,13 @@ async def processar_extrato(
 
     transacoes = extrair_transacoes(conteudo)
 
-    total_enviado = await enviar_para_nextjs(
+    total_enviado, ignoradas = await enviar_para_nextjs(
         transacoes, "accountId", account_id, dict(request.headers)
     )
 
     return ProcessarExtratoResponse(
         total_transacoes=len(transacoes),
         enviadas_com_sucesso=total_enviado,
-        mensagem=f"{total_enviado} de {len(transacoes)} transações do extrato foram salvas com sucesso.",
+        ignoradas_duplicadas=ignoradas,
+        mensagem=montar_mensagem(total_enviado, ignoradas),
     )
