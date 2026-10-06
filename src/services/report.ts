@@ -53,6 +53,9 @@ export async function getReportSummary(userId: string, range: ReportRange) {
       where: {
         userId,
         type: "income",
+        // Crédito na fatura do cartão (ex.: "Pagamento recebido") não é receita:
+        // o pagamento já está registrado como despesa da conta (paidCreditCardId).
+        creditCardId: null,
         date: {
           gte: range.startDate,
           lte: range.endDate,
