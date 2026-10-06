@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { parseLocalDate } from "@/lib/date";
+import { resolveAutomaticRecurringBillReference } from "@/services/transaction";
 
 type CreateRecurringBillInput = {
   userId: string;
@@ -383,9 +384,10 @@ export async function getRecurringBillsWithHistory(
  * nenhuma conta fixa, para o usuário escolher qual vincular ao confirmar
  * manualmente o pagamento pelo checklist. Agrupado por "year-month" para
  * consulta rápida no lado do servidor (`page.tsx`), sem precisar de uma
- * query por célula do checklist. Cada mês lista as despesas dele e as do
- * mês seguinte, já que a cobrança pode cair depois do mês a que se refere
- * (ex.: academia de setembro debitada na fatura em 02/10).
+ * query por célula do checklist. Cada despesa entra no mês a que se refere
+ * automaticamente (`resolveAutomaticRecurringBillReference`: vencimento da
+ * fatura para cartão, data para conta) e também no mês anterior a esse,
+ * para cobranças que atrasaram e caíram depois do mês a que pertencem.
  */
 export async function getExpenseTransactionOptionsByMonth(
   userId: string,
@@ -395,8 +397,10 @@ export async function getExpenseTransactionOptionsByMonth(
     return {};
   }
 
+  // O mês automático fica entre o da data e dois meses depois (compra após
+  // o fechamento de um cartão que vence no mês seguinte ao fechamento).
   const last = months[months.length - 1];
-  const periodStart = monthRange(months[0].year, months[0].month).start;
+  const periodStart = monthRange(months[0].year, months[0].month - 2).start;
   const periodEnd = monthRange(last.year, last.month + 1).end;
 
   const transactions = await prisma.transaction.findMany({
@@ -414,6 +418,12 @@ export async function getExpenseTransactionOptionsByMonth(
       description: true,
       amount: true,
       date: true,
+      creditCard: {
+        select: {
+          closingDay: true,
+          dueDay: true,
+        },
+      },
     },
     orderBy: {
       date: "desc",
@@ -426,8 +436,10 @@ export async function getExpenseTransactionOptionsByMonth(
   > = {};
 
   for (const transaction of transactions) {
-    const year = transaction.date.getFullYear();
-    const month = transaction.date.getMonth();
+    const { year, month } = resolveAutomaticRecurringBillReference(
+      transaction.date,
+      transaction.creditCard,
+    );
     const previous = new Date(year, month - 1, 1);
 
     const option = {
