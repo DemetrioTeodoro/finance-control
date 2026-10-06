@@ -9,18 +9,23 @@ import {
 import { parseLocalDate } from "@/lib/date";
 
 /**
- * O form envia se o pagamento da conta fixa é do mês da transação ("0") ou
- * do mês anterior ("-1", ex.: cobrança que cai no começo do mês seguinte).
- * Convertido aqui para o ano/mês de referência que o service grava.
+ * O form envia a qual mês o pagamento da conta fixa se refere, relativo ao
+ * mês da transação: "-1" (anterior), "0" (mesmo) ou "1" (seguinte). Vazio
+ * significa automático — o service decide pelo vencimento da fatura (cartão)
+ * ou pela data (conta).
  */
 function parseRecurringBillReference(formData: FormData, date: Date) {
   const offset = formData.get("paidRecurringBillMonthOffset")?.toString();
 
-  if (offset !== "-1") {
+  if (offset !== "-1" && offset !== "0" && offset !== "1") {
     return null;
   }
 
-  const reference = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+  const reference = new Date(
+    date.getFullYear(),
+    date.getMonth() + Number(offset),
+    1,
+  );
 
   return { year: reference.getFullYear(), month: reference.getMonth() };
 }
