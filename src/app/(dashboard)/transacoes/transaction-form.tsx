@@ -45,6 +45,7 @@ export function TransactionForm({
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [paidRecurringBillId, setPaidRecurringBillId] = useState("");
 
   async function handleSubmit(formData: FormData) {
     setMessage("");
@@ -63,7 +64,16 @@ export function TransactionForm({
   }
 
   if (!open) {
-    return <Button onClick={() => setOpen(true)}>+ Nova transação</Button>;
+    return (
+      <Button
+        onClick={() => {
+          setPaidRecurringBillId("");
+          setOpen(true);
+        }}
+      >
+        + Nova transação
+      </Button>
+    );
   }
 
   return (
@@ -160,6 +170,8 @@ export function TransactionForm({
 
             <select
               name="paidRecurringBillId"
+              value={paidRecurringBillId}
+              onChange={(event) => setPaidRecurringBillId(event.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="">Não</option>
@@ -171,6 +183,25 @@ export function TransactionForm({
               ))}
             </select>
           </div>
+
+          {paidRecurringBillId && (
+            <div className="space-y-1">
+              <label className="text-sm text-muted-foreground">
+                Referente a qual mês da conta fixa?
+              </label>
+
+              <select
+                name="paidRecurringBillMonthOffset"
+                defaultValue={"0"}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="0">Mesmo mês da transação</option>
+                <option value="-1">
+                  Mês anterior (cobrança caiu no mês seguinte)
+                </option>
+              </select>
+            </div>
+          )}
 
           {message && (
             <p className="text-sm text-muted-foreground">{message}</p>
