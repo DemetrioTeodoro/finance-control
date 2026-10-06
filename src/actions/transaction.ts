@@ -8,6 +8,23 @@ import {
 } from "@/services/transaction";
 import { parseLocalDate } from "@/lib/date";
 
+/**
+ * O form envia se o pagamento da conta fixa é do mês da transação ("0") ou
+ * do mês anterior ("-1", ex.: cobrança que cai no começo do mês seguinte).
+ * Convertido aqui para o ano/mês de referência que o service grava.
+ */
+function parseRecurringBillReference(formData: FormData, date: Date) {
+  const offset = formData.get("paidRecurringBillMonthOffset")?.toString();
+
+  if (offset !== "-1") {
+    return null;
+  }
+
+  const reference = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+
+  return { year: reference.getFullYear(), month: reference.getMonth() };
+}
+
 export async function createTransaction(formData: FormData) {
   const session = await auth();
 
@@ -70,6 +87,10 @@ export async function createTransaction(formData: FormData) {
       creditCardId,
       paidCreditCardId,
       paidRecurringBillId,
+      paidRecurringBillReference: parseRecurringBillReference(
+        formData,
+        transactionDate,
+      ),
     });
 
     return {
@@ -110,6 +131,12 @@ export async function createTransaction(formData: FormData) {
       if (error.message === "INVALID_PAID_RECURRING_BILL_TYPE") {
         return {
           error: "O pagamento de conta fixa precisa ser uma despesa.",
+        };
+      }
+
+      if (error.message === "INVALID_RECURRING_BILL_REFERENCE") {
+        return {
+          error: "Mês de referência da conta fixa inválido.",
         };
       }
 
@@ -204,6 +231,10 @@ export async function updateTransaction(formData: FormData) {
       creditCardId,
       paidCreditCardId,
       paidRecurringBillId,
+      paidRecurringBillReference: parseRecurringBillReference(
+        formData,
+        transactionDate,
+      ),
     });
 
     return {
@@ -250,6 +281,12 @@ export async function updateTransaction(formData: FormData) {
       if (error.message === "INVALID_PAID_RECURRING_BILL_TYPE") {
         return {
           error: "O pagamento de conta fixa precisa ser uma despesa.",
+        };
+      }
+
+      if (error.message === "INVALID_RECURRING_BILL_REFERENCE") {
+        return {
+          error: "Mês de referência da conta fixa inválido.",
         };
       }
 
