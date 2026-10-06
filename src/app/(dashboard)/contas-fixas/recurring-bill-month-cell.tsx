@@ -220,7 +220,7 @@ export function RecurringBillMonthCell({
 
               {transactionOptions.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Nenhuma despesa encontrada neste mês ou no seguinte para vincular.
+                  Nenhuma despesa encontrada para vincular a este mês.
                 </p>
               )}
 
