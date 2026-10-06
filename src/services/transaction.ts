@@ -1,5 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { resolveInvoiceDueMonth } from "@/services/credit-card";
 
 type CreateTransactionInput = {
   userId: string;
@@ -35,23 +36,51 @@ type RecurringBillReference = {
   month: number;
 };
 
+type InvoiceDays = {
+  closingDay: number;
+  dueDay: number;
+};
+
 /**
- * Mês a que o pagamento da conta fixa se refere. Sem referência explícita,
- * assume o mês da própria transação. Retorna `null` quando a transação não
- * paga nenhuma conta fixa, para os campos ficarem sempre coerentes com
- * `paidRecurringBillId`.
+ * Mês a que o pagamento de uma conta fixa se refere quando o usuário não
+ * escolhe um explicitamente: o mês em que o dinheiro sai da conta. Para
+ * compra no cartão, é o mês de vencimento da fatura em que ela entra
+ * (ex.: cobrança em 11/09 num cartão que fecha dia 6 e vence dia 13 sai
+ * da conta em 13/10 → outubro); para transação de conta, o mês da data.
+ */
+export function resolveAutomaticRecurringBillReference(
+  date: Date,
+  creditCard: InvoiceDays | null,
+): RecurringBillReference {
+  if (creditCard) {
+    return resolveInvoiceDueMonth(
+      creditCard.closingDay,
+      creditCard.dueDay,
+      date,
+    );
+  }
+
+  return { year: date.getFullYear(), month: date.getMonth() };
+}
+
+/**
+ * Mês a que o pagamento da conta fixa se refere: o escolhido no form ou, sem
+ * escolha, o automático (`resolveAutomaticRecurringBillReference`). Retorna
+ * `null` quando a transação não paga nenhuma conta fixa, para os campos
+ * ficarem sempre coerentes com `paidRecurringBillId`.
  */
 function resolveRecurringBillReference(
   paidRecurringBillId: string | null | undefined,
   reference: RecurringBillReference | null | undefined,
   date: Date,
+  creditCard: InvoiceDays | null,
 ) {
   if (!paidRecurringBillId) {
     return { paidRecurringBillYear: null, paidRecurringBillMonth: null };
   }
 
-  const year = reference?.year ?? date.getFullYear();
-  const month = reference?.month ?? date.getMonth();
+  const { year, month } =
+    reference ?? resolveAutomaticRecurringBillReference(date, creditCard);
 
   if (
     !Number.isInteger(year) ||
@@ -102,6 +131,45 @@ type TransactionFilters = {
   endDate?: Date;
 };
 
+/**
+ * Valor inicial do select "Referente a qual mês" na edição: vazio
+ * (automático) quando o mês gravado é o automático, para uma mudança de
+ * data ou cartão recalcular o mês; senão, a diferença em meses em relação
+ * à data da transação ("-1", "0" ou "1").
+ */
+function resolveRecurringBillMonthOffset(
+  transaction: {
+    date: Date;
+    paidRecurringBillYear: number | null;
+    paidRecurringBillMonth: number | null;
+  },
+  creditCard: InvoiceDays | null,
+) {
+  if (
+    transaction.paidRecurringBillYear === null ||
+    transaction.paidRecurringBillMonth === null
+  ) {
+    return "";
+  }
+
+  const stored =
+    transaction.paidRecurringBillYear * 12 + transaction.paidRecurringBillMonth;
+  const automatic = resolveAutomaticRecurringBillReference(
+    transaction.date,
+    creditCard,
+  );
+
+  if (stored === automatic.year * 12 + automatic.month) {
+    return "";
+  }
+
+  const offset =
+    stored -
+    (transaction.date.getFullYear() * 12 + transaction.date.getMonth());
+
+  return offset >= -1 && offset <= 1 ? String(offset) : "";
+}
+
 export async function getTransactions(
   userId: string,
   filters?: TransactionFilters,
@@ -140,6 +208,8 @@ export async function getTransactions(
         select: {
           id: true,
           name: true,
+          closingDay: true,
+          dueDay: true,
         },
       },
       paidCreditCard: {
@@ -160,10 +230,15 @@ export async function getTransactions(
     },
   });
 
-  return transactions.map((transaction) => ({
+  return transactions.map(({ creditCard, ...transaction }) => ({
     ...transaction,
+    creditCard: creditCard ? { id: creditCard.id, name: creditCard.name } : null,
     amount: Number(transaction.amount),
     type: transaction.type as "income" | "expense",
+    paidRecurringBillMonthOffset: resolveRecurringBillMonthOffset(
+      transaction,
+      creditCard,
+    ),
   }));
 }
 
@@ -242,20 +317,22 @@ export async function createTransaction(input: CreateTransactionInput) {
       }
     }
 
-    if (input.creditCardId) {
-      const creditCard = await tx.creditCard.findFirst({
-        where: {
-          id: input.creditCardId,
-          userId: input.userId,
-        },
-        select: {
-          id: true,
-        },
-      });
+    const creditCard = input.creditCardId
+      ? await tx.creditCard.findFirst({
+          where: {
+            id: input.creditCardId,
+            userId: input.userId,
+          },
+          select: {
+            id: true,
+            closingDay: true,
+            dueDay: true,
+          },
+        })
+      : null;
 
-      if (!creditCard) {
-        throw new Error("CREDIT_CARD_NOT_FOUND");
-      }
+    if (input.creditCardId && !creditCard) {
+      throw new Error("CREDIT_CARD_NOT_FOUND");
     }
 
     if (input.paidCreditCardId) {
@@ -330,6 +407,7 @@ export async function createTransaction(input: CreateTransactionInput) {
           input.paidRecurringBillId,
           input.paidRecurringBillReference,
           input.date,
+          creditCard,
         ),
       },
     });
@@ -433,20 +511,22 @@ export async function updateTransaction(input: UpdateTransactionInput) {
     /*
      * 3.5. Valida o novo cartão
      */
-    if (input.creditCardId) {
-      const creditCard = await tx.creditCard.findFirst({
-        where: {
-          id: input.creditCardId,
-          userId: input.userId,
-        },
-        select: {
-          id: true,
-        },
-      });
+    const creditCard = input.creditCardId
+      ? await tx.creditCard.findFirst({
+          where: {
+            id: input.creditCardId,
+            userId: input.userId,
+          },
+          select: {
+            id: true,
+            closingDay: true,
+            dueDay: true,
+          },
+        })
+      : null;
 
-      if (!creditCard) {
-        throw new Error("CREDIT_CARD_NOT_FOUND");
-      }
+    if (input.creditCardId && !creditCard) {
+      throw new Error("CREDIT_CARD_NOT_FOUND");
     }
 
     /*
@@ -535,6 +615,7 @@ export async function updateTransaction(input: UpdateTransactionInput) {
           input.paidRecurringBillId,
           input.paidRecurringBillReference,
           input.date,
+          creditCard,
         ),
       },
     });
