@@ -39,8 +39,7 @@ type Transaction = {
   creditCardId: string | null;
   paidCreditCardId: string | null;
   paidRecurringBillId: string | null;
-  paidRecurringBillYear: number | null;
-  paidRecurringBillMonth: number | null;
+  paidRecurringBillMonthOffset: string;
 };
 
 type TransactionEditFormProps = {
@@ -69,18 +68,6 @@ export function TransactionEditForm({
   const [paidRecurringBillId, setPaidRecurringBillId] = useState(
     transaction.paidRecurringBillId ?? "",
   );
-
-  // Mês de referência gravado anterior ao mês da data → "mês anterior".
-  // Getters UTC pelo mesmo motivo do `timeZone: "UTC"` em transaction-item.
-  const transactionDate = new Date(transaction.date);
-  const defaultMonthOffset =
-    transaction.paidRecurringBillYear !== null &&
-    transaction.paidRecurringBillMonth !== null &&
-    transaction.paidRecurringBillYear * 12 +
-      transaction.paidRecurringBillMonth <
-      transactionDate.getUTCFullYear() * 12 + transactionDate.getUTCMonth()
-      ? "-1"
-      : "0";
 
   async function handleSubmit(formData: FormData) {
     setMessage("");
@@ -224,13 +211,15 @@ export function TransactionEditForm({
 
               <select
                 name="paidRecurringBillMonthOffset"
-                defaultValue={defaultMonthOffset}
+                defaultValue={transaction.paidRecurringBillMonthOffset}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="0">Mesmo mês da transação</option>
-                <option value="-1">
-                  Mês anterior (cobrança caiu no mês seguinte)
+                <option value="">
+                  Automático (cartão: mês do vencimento da fatura)
                 </option>
+                <option value="-1">Mês anterior ao da transação</option>
+                <option value="0">Mesmo mês da transação</option>
+                <option value="1">Mês seguinte ao da transação</option>
               </select>
             </div>
           )}
