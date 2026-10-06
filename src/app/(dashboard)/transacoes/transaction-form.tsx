@@ -192,13 +192,15 @@ export function TransactionForm({
 
               <select
                 name="paidRecurringBillMonthOffset"
-                defaultValue={"0"}
+                defaultValue=""
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="0">Mesmo mês da transação</option>
-                <option value="-1">
-                  Mês anterior (cobrança caiu no mês seguinte)
+                <option value="">
+                  Automático (cartão: mês do vencimento da fatura)
                 </option>
+                <option value="-1">Mês anterior ao da transação</option>
+                <option value="0">Mesmo mês da transação</option>
+                <option value="1">Mês seguinte ao da transação</option>
               </select>
             </div>
           )}
