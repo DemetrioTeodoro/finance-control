@@ -39,6 +39,8 @@ type Transaction = {
   creditCardId: string | null;
   paidCreditCardId: string | null;
   paidRecurringBillId: string | null;
+  paidRecurringBillYear: number | null;
+  paidRecurringBillMonth: number | null;
 };
 
 type TransactionEditFormProps = {
@@ -63,6 +65,22 @@ export function TransactionEditForm({
   const [message, setMessage] = useState("");
 
   const dateValue = new Date(transaction.date).toISOString().split("T")[0];
+
+  const [paidRecurringBillId, setPaidRecurringBillId] = useState(
+    transaction.paidRecurringBillId ?? "",
+  );
+
+  // Mês de referência gravado anterior ao mês da data → "mês anterior".
+  // Getters UTC pelo mesmo motivo do `timeZone: "UTC"` em transaction-item.
+  const transactionDate = new Date(transaction.date);
+  const defaultMonthOffset =
+    transaction.paidRecurringBillYear !== null &&
+    transaction.paidRecurringBillMonth !== null &&
+    transaction.paidRecurringBillYear * 12 +
+      transaction.paidRecurringBillMonth <
+      transactionDate.getUTCFullYear() * 12 + transactionDate.getUTCMonth()
+      ? "-1"
+      : "0";
 
   async function handleSubmit(formData: FormData) {
     setMessage("");
@@ -184,7 +202,8 @@ export function TransactionEditForm({
 
             <select
               name="paidRecurringBillId"
-              defaultValue={transaction.paidRecurringBillId ?? ""}
+              value={paidRecurringBillId}
+              onChange={(event) => setPaidRecurringBillId(event.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="">Não</option>
@@ -196,6 +215,25 @@ export function TransactionEditForm({
               ))}
             </select>
           </div>
+
+          {paidRecurringBillId && (
+            <div className="space-y-1">
+              <label className="text-sm text-muted-foreground">
+                Referente a qual mês da conta fixa?
+              </label>
+
+              <select
+                name="paidRecurringBillMonthOffset"
+                defaultValue={defaultMonthOffset}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="0">Mesmo mês da transação</option>
+                <option value="-1">
+                  Mês anterior (cobrança caiu no mês seguinte)
+                </option>
+              </select>
+            </div>
+          )}
 
           {message && <p className="text-sm text-destructive">{message}</p>}
 
