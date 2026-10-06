@@ -270,8 +270,11 @@ export async function deleteRecurringBill(input: DeleteRecurringBillInput) {
  * para o usuário conseguir enxergar (e corrigir) meses anteriores num só
  * lugar, em vez de só o mês corrente. "Pago" cobre duas fontes, não
  * mutuamente exclusivas:
- * - uma Transaction com `paidRecurringBillId` apontando pra essa conta,
- *   com data dentro do mês (vínculo explícito, feito ao lançar a despesa);
+ * - uma Transaction com `paidRecurringBillId` apontando pra essa conta e
+ *   `paidRecurringBillYear`/`paidRecurringBillMonth` naquele mês (vínculo
+ *   explícito, feito ao lançar a despesa ou pelo checklist). O mês de
+ *   referência é o gravado no vínculo, não o da data da transação — a
+ *   cobrança pode cair no mês seguinte (ex.: debitada na fatura dia 02);
  * - um RecurringBillPayment (confirmação manual sem transação, ex.: pago
  *   em dinheiro).
  */
@@ -282,12 +285,6 @@ export async function getRecurringBillsWithHistory(
   if (months.length === 0) {
     return { months, bills: [] };
   }
-
-  const periodStart = monthRange(months[0].year, months[0].month).start;
-  const periodEnd = monthRange(
-    months[months.length - 1].year,
-    months[months.length - 1].month,
-  ).end;
 
   const recurringBills = await prisma.recurringBill.findMany({
     where: {
@@ -311,16 +308,18 @@ export async function getRecurringBillsWithHistory(
       },
       paidByTransactions: {
         where: {
-          date: {
-            gte: periodStart,
-            lte: periodEnd,
-          },
+          OR: months.map((reference) => ({
+            paidRecurringBillYear: reference.year,
+            paidRecurringBillMonth: reference.month,
+          })),
         },
         select: {
           id: true,
           description: true,
           amount: true,
           date: true,
+          paidRecurringBillYear: true,
+          paidRecurringBillMonth: true,
         },
       },
     },
@@ -339,7 +338,7 @@ export async function getRecurringBillsWithHistory(
 
     const transactionByKey = new Map(
       recurringBill.paidByTransactions.map((transaction) => [
-        `${transaction.date.getFullYear()}-${transaction.date.getMonth()}`,
+        `${transaction.paidRecurringBillYear}-${transaction.paidRecurringBillMonth}`,
         transaction,
       ]),
     );
@@ -384,7 +383,9 @@ export async function getRecurringBillsWithHistory(
  * nenhuma conta fixa, para o usuário escolher qual vincular ao confirmar
  * manualmente o pagamento pelo checklist. Agrupado por "year-month" para
  * consulta rápida no lado do servidor (`page.tsx`), sem precisar de uma
- * query por célula do checklist.
+ * query por célula do checklist. Cada mês lista as despesas dele e as do
+ * mês seguinte, já que a cobrança pode cair depois do mês a que se refere
+ * (ex.: academia de setembro debitada na fatura em 02/10).
  */
 export async function getExpenseTransactionOptionsByMonth(
   userId: string,
@@ -394,11 +395,9 @@ export async function getExpenseTransactionOptionsByMonth(
     return {};
   }
 
+  const last = months[months.length - 1];
   const periodStart = monthRange(months[0].year, months[0].month).start;
-  const periodEnd = monthRange(
-    months[months.length - 1].year,
-    months[months.length - 1].month,
-  ).end;
+  const periodEnd = monthRange(last.year, last.month + 1).end;
 
   const transactions = await prisma.transaction.findMany({
     where: {
@@ -427,18 +426,27 @@ export async function getExpenseTransactionOptionsByMonth(
   > = {};
 
   for (const transaction of transactions) {
-    const key = `${transaction.date.getFullYear()}-${transaction.date.getMonth()}`;
+    const year = transaction.date.getFullYear();
+    const month = transaction.date.getMonth();
+    const previous = new Date(year, month - 1, 1);
 
-    if (!byMonth[key]) {
-      byMonth[key] = [];
-    }
-
-    byMonth[key].push({
+    const option = {
       id: transaction.id,
       description: transaction.description,
       amount: Number(transaction.amount),
       date: transaction.date,
-    });
+    };
+
+    for (const key of [
+      `${year}-${month}`,
+      `${previous.getFullYear()}-${previous.getMonth()}`,
+    ]) {
+      if (!byMonth[key]) {
+        byMonth[key] = [];
+      }
+
+      byMonth[key].push(option);
+    }
   }
 
   return byMonth;
@@ -447,7 +455,8 @@ export async function getExpenseTransactionOptionsByMonth(
 /**
  * Confirma o pagamento de uma conta fixa num mês. Se `transactionId` for
  * informado, o vínculo é feito direto na transação
- * (`Transaction.paidRecurringBillId`, mesmo padrão de `paidCreditCardId`) —
+ * (`Transaction.paidRecurringBillId`, mesmo padrão de `paidCreditCardId`),
+ * gravando o mês da célula como referência — não o da data da transação —
  * sem heurística automática por categoria, que já causou falso positivo
  * (duas despesas na mesma categoria, nenhuma sendo o pagamento real). Sem
  * transação, fica só a confirmação manual (`RecurringBillPayment`), pra
@@ -483,6 +492,8 @@ export async function confirmRecurringBillPayment(input: ConfirmPaymentInput) {
       },
       data: {
         paidRecurringBillId: recurringBill.id,
+        paidRecurringBillYear: input.year,
+        paidRecurringBillMonth: input.month,
       },
     });
   }
@@ -518,19 +529,17 @@ export async function unconfirmRecurringBillPayment(
     throw new Error("RECURRING_BILL_NOT_FOUND");
   }
 
-  const { start, end } = monthRange(input.year, input.month);
-
   await prisma.transaction.updateMany({
     where: {
       userId: input.userId,
       paidRecurringBillId: recurringBill.id,
-      date: {
-        gte: start,
-        lte: end,
-      },
+      paidRecurringBillYear: input.year,
+      paidRecurringBillMonth: input.month,
     },
     data: {
       paidRecurringBillId: null,
+      paidRecurringBillYear: null,
+      paidRecurringBillMonth: null,
     },
   });
 
@@ -592,7 +601,6 @@ function buildReminderEmail(
  */
 export async function checkRecurringBillsForReminders() {
   const { year, month } = getCurrentYearMonth();
-  const { start, end } = monthRange(year, month);
 
   const today = new Date();
   const todayDay = today.getDate();
@@ -620,10 +628,8 @@ export async function checkRecurringBillsForReminders() {
       },
       paidByTransactions: {
         where: {
-          date: {
-            gte: start,
-            lte: end,
-          },
+          paidRecurringBillYear: year,
+          paidRecurringBillMonth: month,
         },
         take: 1,
         select: {
