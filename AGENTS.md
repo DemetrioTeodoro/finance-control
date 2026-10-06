@@ -1147,7 +1147,7 @@ O backlog original deste documento (seções 34/35 anteriores) foi concluído. A
 - Import de fatura de cartão de crédito via arquivo OFX (microsserviço `py-api`, nunca altera saldo de conta)
 - Import de extrato bancário via arquivo OFX (microsserviço `py-api`, atualiza o saldo da conta vinculada)
 - Reimportação de OFX com períodos sobrepostos sem duplicar transações (deduplicação por FITID)
-- Contas fixas (`/contas-fixas`): checklist mensal de contas recorrentes (aluguel, internet etc.), com identificação automática de pagamento por categoria + confirmação manual, e lembrete por e-mail 1 dia antes e no dia do vencimento
+- Contas fixas (`/contas-fixas`): checklist mensal de contas recorrentes (aluguel, internet etc.), com vínculo manual da transação de pagamento (mês calculado automaticamente — vencimento da fatura para cartão, data para conta) ou confirmação manual sem transação, e lembrete por e-mail 1 dia antes e no dia do vencimento
 - Proteção por usuário
 - Sidebar
 - Dialogs
