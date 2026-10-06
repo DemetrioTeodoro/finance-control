@@ -192,6 +192,26 @@ export function getInvoiceCycleRange(
   return { periodStart, periodEnd, dueDate };
 }
 
+/**
+ * Mês em que vence a fatura na qual uma compra feita em `date` entra — ou
+ * seja, o mês em que o dinheiro dessa compra efetivamente sai da conta.
+ * Usado para saber a qual mês de uma conta fixa uma cobrança no cartão
+ * se refere.
+ */
+export function resolveInvoiceDueMonth(
+  closingDay: number,
+  dueDay: number,
+  date: Date,
+): InvoiceCycleKey {
+  const { dueDate } = getInvoiceCycleRange(
+    closingDay,
+    dueDay,
+    resolveInvoiceCycleKey(closingDay, date),
+  );
+
+  return { year: dueDate.getFullYear(), month: dueDate.getMonth() };
+}
+
 type GetInvoiceInput = {
   userId: string;
   creditCardId: string;
