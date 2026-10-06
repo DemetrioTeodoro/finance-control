@@ -98,6 +98,13 @@ model Transaction {
   paidRecurringBillId String?
   paidRecurringBill   RecurringBill? @relation("RecurringBillPaymentTransaction", fields: [paidRecurringBillId], references: [id], onDelete: SetNull)
 
+  /// Mês a que o pagamento da conta fixa se refere (month 0-indexado, mesma
+  /// convenção de RecurringBillPayment). Guardado à parte da `date` porque a
+  /// cobrança pode cair no mês seguinte (ex.: academia de setembro debitada
+  /// na fatura em 02/10). Preenchido sempre que `paidRecurringBillId` estiver.
+  paidRecurringBillYear  Int?
+  paidRecurringBillMonth Int?
+
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
