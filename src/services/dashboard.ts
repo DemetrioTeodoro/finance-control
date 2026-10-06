@@ -22,6 +22,9 @@ export async function getDashboardData(userId: string) {
       where: {
         userId,
         type: "income",
+        // Crédito na fatura do cartão (ex.: "Pagamento recebido") não é receita:
+        // o pagamento já está registrado como despesa da conta (paidCreditCardId).
+        creditCardId: null,
         date: {
           gte: startOfMonth,
           lt: startOfNextMonth,
@@ -92,6 +95,7 @@ export async function getMonthlyEvolution(userId: string, months = 6) {
         type: true,
         amount: true,
         accountId: true,
+        creditCardId: true,
         paidCreditCardId: true,
       },
     }),
@@ -123,7 +127,9 @@ export async function getMonthlyEvolution(userId: string, months = 6) {
     const amount = Number(transaction.amount);
 
     if (transaction.type === "income") {
-      bucket.income += amount;
+      if (!transaction.creditCardId) {
+        bucket.income += amount;
+      }
 
       if (transaction.accountId) {
         bucket.accountNet += amount;
