@@ -12,6 +12,7 @@ type CreateTransactionInput = {
   creditCardId?: string | null;
   paidCreditCardId?: string | null;
   paidRecurringBillId?: string | null;
+  paidRecurringBillReference?: RecurringBillReference | null;
 };
 
 type UpdateTransactionInput = {
@@ -26,7 +27,43 @@ type UpdateTransactionInput = {
   creditCardId?: string | null;
   paidCreditCardId?: string | null;
   paidRecurringBillId?: string | null;
+  paidRecurringBillReference?: RecurringBillReference | null;
 };
+
+type RecurringBillReference = {
+  year: number;
+  month: number;
+};
+
+/**
+ * Mês a que o pagamento da conta fixa se refere. Sem referência explícita,
+ * assume o mês da própria transação. Retorna `null` quando a transação não
+ * paga nenhuma conta fixa, para os campos ficarem sempre coerentes com
+ * `paidRecurringBillId`.
+ */
+function resolveRecurringBillReference(
+  paidRecurringBillId: string | null | undefined,
+  reference: RecurringBillReference | null | undefined,
+  date: Date,
+) {
+  if (!paidRecurringBillId) {
+    return { paidRecurringBillYear: null, paidRecurringBillMonth: null };
+  }
+
+  const year = reference?.year ?? date.getFullYear();
+  const month = reference?.month ?? date.getMonth();
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    month < 0 ||
+    month > 11
+  ) {
+    throw new Error("INVALID_RECURRING_BILL_REFERENCE");
+  }
+
+  return { paidRecurringBillYear: year, paidRecurringBillMonth: month };
+}
 
 type BulkCreditCardTransactionItem = {
   description: string;
@@ -289,6 +326,11 @@ export async function createTransaction(input: CreateTransactionInput) {
         creditCardId: input.creditCardId ?? null,
         paidCreditCardId: input.paidCreditCardId ?? null,
         paidRecurringBillId: input.paidRecurringBillId ?? null,
+        ...resolveRecurringBillReference(
+          input.paidRecurringBillId,
+          input.paidRecurringBillReference,
+          input.date,
+        ),
       },
     });
   });
@@ -489,6 +531,11 @@ export async function updateTransaction(input: UpdateTransactionInput) {
         creditCardId: input.creditCardId ?? null,
         paidCreditCardId: input.paidCreditCardId ?? null,
         paidRecurringBillId: input.paidRecurringBillId ?? null,
+        ...resolveRecurringBillReference(
+          input.paidRecurringBillId,
+          input.paidRecurringBillReference,
+          input.date,
+        ),
       },
     });
   });
