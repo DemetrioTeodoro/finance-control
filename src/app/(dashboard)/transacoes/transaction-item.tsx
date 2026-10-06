@@ -42,8 +42,7 @@ type Transaction = {
   creditCardId: string | null;
   paidCreditCardId: string | null;
   paidRecurringBillId: string | null;
-  paidRecurringBillYear: number | null;
-  paidRecurringBillMonth: number | null;
+  paidRecurringBillMonthOffset: string;
   account: {
     id: string;
     name: string;
