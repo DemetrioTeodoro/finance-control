@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SensitiveValue } from "@/components/sensitive-value";
 import { CategoryExpenseChart } from "@/components/charts/category-expense-chart";
+import { restoreSavedFilters } from "@/lib/saved-filters-server";
 import { ReportFilters } from "./report-filters";
 import { ReportExportButton } from "./report-export-button";
 
@@ -23,8 +24,14 @@ type RelatoriosPageProps = {
   }>;
 };
 
+// Getters locais, não `toISOString()`: o fim do período ("Mês passado"
+// termina às 23:59 locais) viraria o dia seguinte em UTC em fusos negativos.
 function toIsoDate(date: Date) {
-  return date.toISOString().split("T")[0];
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 }
 
 export default async function RelatoriosPage({
@@ -37,6 +44,9 @@ export default async function RelatoriosPage({
   }
 
   const params = await searchParams;
+
+  await restoreSavedFilters("relatorios", params);
+
   const period = resolveReportPeriod(params.period);
   const range = resolveReportRange(period, params.startDate, params.endDate);
 
