@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
+import { setValueVisibility } from "@/services/user-preferences";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -59,6 +60,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       return session;
+    },
+  },
+  events: {
+    // Todo login começa com os valores ocultos, independente de como a
+    // preferência ficou na última sessão (ou em outro dispositivo).
+    async signIn({ user }) {
+      if (!user.id) {
+        return;
+      }
+
+      try {
+        await setValueVisibility(user.id, false);
+      } catch (error) {
+        console.error("Erro ao ocultar valores no login:", error);
+      }
     },
   },
   pages: {
