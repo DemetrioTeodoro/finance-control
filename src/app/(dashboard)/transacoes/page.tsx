@@ -3,15 +3,29 @@ import {
   getAccountOptions,
   getCategoryOptions,
   getTransactions,
+  resolveTransactionDateRange,
+  resolveTransactionPeriod,
 } from "@/services/transaction";
 import { getCreditCardOptions } from "@/services/credit-card";
 import { getRecurringBillOptions } from "@/services/recurring-bill";
-import { parseLocalDate } from "@/lib/date";
+import { restoreSavedFilters } from "@/lib/saved-filters-server";
 import { TransactionForm } from "./transaction-form";
 import { TransactionItem } from "./transaction-item";
 import { TransactionFilters } from "./transaction-filters";
 
 export const dynamic = "force-dynamic";
+
+function toIsoDate(date: Date | undefined) {
+  if (!date) {
+    return "";
+  }
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
 
 type TransactionsPageProps = {
   searchParams: Promise<{
@@ -19,6 +33,7 @@ type TransactionsPageProps = {
     categoryId?: string;
     creditCardId?: string;
     type?: string;
+    period?: string;
     startDate?: string;
     endDate?: string;
   }>;
@@ -37,6 +52,8 @@ export default async function TransactionsPage({
 
   const params = await searchParams;
 
+  await restoreSavedFilters("transacoes", params);
+
   const accountId = params.accountId || undefined;
   const categoryId = params.categoryId || undefined;
   const creditCardId = params.creditCardId || undefined;
@@ -44,20 +61,19 @@ export default async function TransactionsPage({
     params.type === "income" || params.type === "expense"
       ? params.type
       : undefined;
-  const startDate = params.startDate
-    ? parseLocalDate(params.startDate)
-    : undefined;
-  const endDate = params.endDate
-    ? new Date(`${params.endDate}T23:59:59.999Z`)
-    : undefined;
+  const period = resolveTransactionPeriod(
+    params.period,
+    params.startDate,
+    params.endDate,
+  );
+  const { startDate, endDate } = resolveTransactionDateRange(
+    period,
+    params.startDate,
+    params.endDate,
+  );
 
   const hasActiveFilters = Boolean(
-    accountId ||
-      categoryId ||
-      creditCardId ||
-      type ||
-      params.startDate ||
-      params.endDate,
+    accountId || categoryId || creditCardId || type || period,
   );
 
   const [transactions, accounts, categories, creditCards, recurringBills] =
@@ -101,6 +117,7 @@ export default async function TransactionsPage({
           params.categoryId,
           params.creditCardId,
           params.type,
+          params.period,
           params.startDate,
           params.endDate,
         ].join("|")}
@@ -112,9 +129,10 @@ export default async function TransactionsPage({
           categoryId: params.categoryId ?? "",
           creditCardId: params.creditCardId ?? "",
           type: params.type ?? "",
-          startDate: params.startDate ?? "",
-          endDate: params.endDate ?? "",
+          startDate: period === "custom" ? params.startDate ?? "" : toIsoDate(startDate),
+          endDate: period === "custom" ? params.endDate ?? "" : toIsoDate(endDate),
         }}
+        period={period}
         hasActiveFilters={hasActiveFilters}
       />
 
