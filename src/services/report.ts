@@ -6,11 +6,17 @@ type ReportRange = {
   endDate: Date;
 };
 
-export type ReportPeriod = "this-month" | "3-months" | "6-months" | "custom";
+export type ReportPeriod =
+  | "this-month"
+  | "last-month"
+  | "3-months"
+  | "6-months"
+  | "custom";
 
 export function resolveReportPeriod(value?: string): ReportPeriod {
   if (
     value === "this-month" ||
+    value === "last-month" ||
     value === "3-months" ||
     value === "6-months" ||
     value === "custom"
@@ -38,6 +44,13 @@ export function resolveReportRange(
       : now;
 
     return { startDate, endDate };
+  }
+
+  if (period === "last-month") {
+    return {
+      startDate: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      endDate: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999),
+    };
   }
 
   const monthsBack = period === "6-months" ? 5 : period === "3-months" ? 2 : 0;
