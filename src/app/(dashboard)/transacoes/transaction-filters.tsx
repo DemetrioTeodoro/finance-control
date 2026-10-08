@@ -1,9 +1,19 @@
 "use client";
 
+import { useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
+import { saveFilters } from "@/lib/saved-filters";
+
+type Period = "this-month" | "last-month" | "3-months" | "custom";
+
+const PRESETS: { value: Period; label: string }[] = [
+  { value: "this-month", label: "Este mês" },
+  { value: "last-month", label: "Mês passado" },
+  { value: "3-months", label: "Últimos 3 meses" },
+];
 
 type Account = {
   id: string;
@@ -32,6 +42,7 @@ type TransactionFiltersProps = {
     startDate: string;
     endDate: string;
   };
+  period: Period | null;
   hasActiveFilters: boolean;
 };
 
@@ -40,38 +51,91 @@ export function TransactionFilters({
   categories,
   creditCards,
   defaultValues,
+  period,
   hasActiveFilters,
 }: TransactionFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  function handleSubmit(formData: FormData) {
-    const params = new URLSearchParams();
-
-    const accountId = formData.get("accountId")?.toString();
-    const categoryId = formData.get("categoryId")?.toString();
-    const creditCardId = formData.get("creditCardId")?.toString();
-    const type = formData.get("type")?.toString();
-    const startDate = formData.get("startDate")?.toString();
-    const endDate = formData.get("endDate")?.toString();
-
-    if (accountId) params.set("accountId", accountId);
-    if (categoryId) params.set("categoryId", categoryId);
-    if (creditCardId) params.set("creditCardId", creditCardId);
-    if (type) params.set("type", type);
-    if (startDate) params.set("startDate", startDate);
-    if (endDate) params.set("endDate", endDate);
-
+  function navigate(params: URLSearchParams) {
     const query = params.toString();
 
+    saveFilters("transacoes", query);
     router.push(query ? `${pathname}?${query}` : pathname);
+  }
+
+  function buildBaseParams(formData: FormData) {
+    const params = new URLSearchParams();
+
+    for (const name of ["accountId", "categoryId", "creditCardId", "type"]) {
+      const value = formData.get(name)?.toString();
+
+      if (value) params.set(name, value);
+    }
+
+    return params;
+  }
+
+  function handleSubmit(formData: FormData) {
+    const params = buildBaseParams(formData);
+
+    const startDate = formData.get("startDate")?.toString() ?? "";
+    const endDate = formData.get("endDate")?.toString() ?? "";
+
+    const datesChanged =
+      startDate !== defaultValues.startDate ||
+      endDate !== defaultValues.endDate;
+
+    // Atalho ativo e datas intocadas: mantém o atalho (relativo a hoje) em
+    // vez de congelar as datas que ele mostrou nos campos.
+    if (period && period !== "custom" && !datesChanged) {
+      params.set("period", period);
+    } else if (startDate || endDate) {
+      params.set("period", "custom");
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+    }
+
+    navigate(params);
+  }
+
+  function handlePreset(value: Period) {
+    if (!formRef.current) {
+      return;
+    }
+
+    const params = buildBaseParams(new FormData(formRef.current));
+
+    params.set("period", value);
+
+    navigate(params);
+  }
+
+  function handleClear() {
+    navigate(new URLSearchParams());
   }
 
   return (
     <form
+      ref={formRef}
       action={handleSubmit}
       className="flex flex-col gap-3 rounded-lg border bg-card p-4"
     >
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map((preset) => (
+          <Button
+            key={preset.value}
+            type="button"
+            variant={period === preset.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => handlePreset(preset.value)}
+          >
+            {preset.label}
+          </Button>
+        ))}
+      </div>
+
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium">Conta</label>
@@ -170,7 +234,7 @@ export function TransactionFilters({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(pathname)}
+            onClick={handleClear}
           >
             Limpar filtros
           </Button>
