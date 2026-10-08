@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { resolveInvoiceDueMonth } from "@/services/credit-card";
+import { parseLocalDate } from "@/lib/date";
 
 type CreateTransactionInput = {
   userId: string;
@@ -121,6 +122,72 @@ type BulkCreateAccountTransactionsInput = {
   accountId: string;
   items: BulkAccountTransactionItem[];
 };
+
+export type TransactionPeriod =
+  | "this-month"
+  | "last-month"
+  | "3-months"
+  | "custom";
+
+/**
+ * Período do filtro de transações vindo da URL. Sem `period` mas com datas
+ * (links antigos), trata como personalizado; sem nada, sem filtro de data.
+ */
+export function resolveTransactionPeriod(
+  value: string | undefined,
+  startDateParam?: string,
+  endDateParam?: string,
+): TransactionPeriod | null {
+  if (
+    value === "this-month" ||
+    value === "last-month" ||
+    value === "3-months" ||
+    value === "custom"
+  ) {
+    return value;
+  }
+
+  return startDateParam || endDateParam ? "custom" : null;
+}
+
+/**
+ * Converte o período em datas. Os atalhos são relativos a hoje — "Mês
+ * passado" salvo no filtro continua certo quando o mês vira.
+ */
+export function resolveTransactionDateRange(
+  period: TransactionPeriod | null,
+  startDateParam?: string,
+  endDateParam?: string,
+): { startDate?: Date; endDate?: Date } {
+  if (!period) {
+    return {};
+  }
+
+  if (period === "custom") {
+    return {
+      startDate: startDateParam ? parseLocalDate(startDateParam) : undefined,
+      endDate: endDateParam
+        ? new Date(`${endDateParam}T23:59:59.999Z`)
+        : undefined,
+    };
+  }
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  if (period === "last-month") {
+    return {
+      startDate: new Date(year, month - 1, 1),
+      endDate: new Date(year, month, 0, 23, 59, 59, 999),
+    };
+  }
+
+  return {
+    startDate: new Date(year, period === "3-months" ? month - 2 : month, 1),
+    endDate: new Date(year, month + 1, 0, 23, 59, 59, 999),
+  };
+}
 
 type TransactionFilters = {
   accountId?: string;
