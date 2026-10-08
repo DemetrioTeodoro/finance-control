@@ -4,11 +4,13 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
+import { saveFilters } from "@/lib/saved-filters";
 
-type Period = "this-month" | "3-months" | "6-months" | "custom";
+type Period = "this-month" | "last-month" | "3-months" | "6-months" | "custom";
 
 const PRESETS: { value: Period; label: string }[] = [
   { value: "this-month", label: "Este mês" },
+  { value: "last-month", label: "Mês passado" },
   { value: "3-months", label: "Últimos 3 meses" },
   { value: "6-months", label: "Últimos 6 meses" },
 ];
@@ -27,8 +29,13 @@ export function ReportFilters({
   const router = useRouter();
   const pathname = usePathname();
 
+  function navigate(params: URLSearchParams) {
+    saveFilters("relatorios", params.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
   function goToPreset(value: Period) {
-    router.push(`${pathname}?period=${value}`);
+    navigate(new URLSearchParams({ period: value }));
   }
 
   function handleCustomSubmit(formData: FormData) {
@@ -40,7 +47,7 @@ export function ReportFilters({
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
 
-    router.push(`${pathname}?${params.toString()}`);
+    navigate(params);
   }
 
   return (
