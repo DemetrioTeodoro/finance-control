@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
+import { saveFilters } from "@/lib/saved-filters";
 
 type Period = "3-months" | "6-months" | "12-months" | "24-months" | "custom";
 
@@ -28,8 +29,13 @@ export function RecurringBillPeriodFilter({
   const router = useRouter();
   const pathname = usePathname();
 
+  function navigate(params: URLSearchParams) {
+    saveFilters("contas-fixas", params.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
   function goToPreset(value: Period) {
-    router.push(`${pathname}?period=${value}`);
+    navigate(new URLSearchParams({ period: value }));
   }
 
   function handleCustomSubmit(formData: FormData) {
@@ -41,7 +47,7 @@ export function RecurringBillPeriodFilter({
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
 
-    router.push(`${pathname}?${params.toString()}`);
+    navigate(params);
   }
 
   return (
