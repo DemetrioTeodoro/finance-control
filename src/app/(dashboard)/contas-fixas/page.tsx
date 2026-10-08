@@ -10,6 +10,7 @@ import { RecurringBillForm } from "./recurring-bill-form";
 import { RecurringBillEditButton } from "./recurring-bill-edit-button";
 import { RecurringBillDeleteButton } from "./recurring-bill-delete-button";
 import { RecurringBillMonthCell } from "./recurring-bill-month-cell";
+import { restoreSavedFilters } from "@/lib/saved-filters-server";
 import { RecurringBillPeriodFilter } from "./recurring-bill-period-filter";
 import { SensitiveValue } from "@/components/sensitive-value";
 import {
@@ -71,6 +72,9 @@ export default async function RecurringBillsPage({
   const userId = session.user.id;
 
   const params = await searchParams;
+
+  await restoreSavedFilters("contas-fixas", params);
+
   const period = resolveRecurringBillPeriod(params.period);
   const months = resolveRecurringBillMonths(
     period,
